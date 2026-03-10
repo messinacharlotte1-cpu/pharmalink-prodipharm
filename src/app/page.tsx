@@ -19961,20 +19961,31 @@ function MessagesModule({ user }: { user: UserType }) {
   // Charger les templates d'emails
   useEffect(() => {
     fetch('/api/mail/templates')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch templates')
+        return res.json()
+      })
       .then(data => {
-        if (data.success) {
+        if (data && data.success) {
           setEmailTemplates(data.templates)
         }
       })
-      .catch(console.error)
+      .catch(() => {
+        // Silently fail - templates are optional
+        setEmailTemplates([])
+      })
   }, [])
   
   useEffect(() => {
     fetch('/api/mail')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to check mail status')
+        return res.json()
+      })
       .then(data => {
-        setEmailServiceStatus(data.status === 'configured' ? 'configured' : 'not_configured')
+        if (data) {
+          setEmailServiceStatus(data.status === 'configured' ? 'configured' : 'not_configured')
+        }
       })
       .catch(() => setEmailServiceStatus('not_configured'))
   }, [])
