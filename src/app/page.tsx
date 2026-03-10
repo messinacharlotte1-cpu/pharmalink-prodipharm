@@ -22141,7 +22141,16 @@ export default function PharmaLinkApp() {
   
   // Initial loading effect
   useEffect(() => {
-    const timer = setTimeout(() => setIsReady(true), 100)
+    const timer = setTimeout(() => {
+      setIsReady(true)
+      // Hide the initial loader from layout
+      const loader = document.getElementById('initial-loader')
+      if (loader) {
+        loader.style.opacity = '0'
+        loader.style.transition = 'opacity 0.3s'
+        setTimeout(() => { loader.style.display = 'none' }, 300)
+      }
+    }, 100)
     return () => clearTimeout(timer)
   }, [])
   

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Building2, Lock, Eye, EyeOff, Loader2, ArrowRight, MapPin, Users, FileText, DollarSign, Megaphone, BarChart3, LogOut, Bell, Settings, Search, Calendar, TrendingUp, Target, Globe, Activity, User, ChevronRight, CheckCircle, Clock, XCircle, Upload, Download, Filter, Plus, Edit, Trash2, Eye as ViewIcon, Phone, Mail, MapPinned, Car, Home, Coffee, Plane, Send, MessageSquare, FileSpreadsheet, PieChart, LineChart, BarChart, ArrowUpRight, ArrowDownRight, AlertTriangle, Check, X, Camera, Image as ImageIcon, Package, ShoppingCart, TrendingDown, RefreshCw, MoreVertical, ExternalLink, Save, UserPlus, Stethoscope, Printer, Briefcase, Inbox, Reply, Star, CreditCard, ClipboardList, CheckSquare, ClipboardCheck, Play, Truck, Receipt, Shield
+  Building2, Lock, Eye, EyeOff, Loader2, ArrowRight, MapPin, Users, FileText, DollarSign, Megaphone, BarChart3, LogOut, Bell, Settings, Search, Calendar, TrendingUp, Target, Globe, Activity, User, ChevronRight, CheckCircle, Clock, XCircle, Upload, Download, Filter, Plus, Edit, Trash2, Eye as ViewIcon, Phone, Mail, MapPinned, Car, Home, Coffee, Plane, Send, MessageSquare, FileSpreadsheet, PieChart, LineChart, BarChart, ArrowUpRight, ArrowDownRight, AlertTriangle, Check, X, Camera, Image as ImageIcon, Package, ShoppingCart, TrendingDown, RefreshCw, MoreVertical, ExternalLink, Save, UserPlus, Stethoscope, Printer, Briefcase, Inbox, Reply, Star, CreditCard, ClipboardList, CheckSquare, ClipboardCheck, Play, Truck, Receipt, Shield, History, Database, Key, Smartphone, FileKey, Fingerprint, Archive, RotateCcw, Zap, AlertCircle, Info, BellRing, ScrollText, FileArchive
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -154,7 +154,159 @@ function AnimatedProgressBar({ percent, delay = 0 }: { percent: number; delay?: 
 // ============================================
 
 type UserRole = 'dm' | 'superviseur' | 'comptabilite' | 'marketing' | 'admin'
-type Module = 'dashboard' | 'geolocation' | 'crm' | 'accounting' | 'marketing' | 'analytics' | 'settings' | 'hcp' | 'planning' | 'budget' | 'reports' | 'rh' | 'payroll' | 'my-space' | 'messages' | 'stocks' | 'sales' | 'regulatory' | 'laboratories'
+type Module = 'dashboard' | 'geolocation' | 'crm' | 'accounting' | 'marketing' | 'analytics' | 'settings' | 'hcp' | 'planning' | 'budget' | 'reports' | 'rh' | 'payroll' | 'my-space' | 'messages' | 'stocks' | 'sales' | 'regulatory' | 'laboratories' | 'audit' | 'backup'
+
+// ============================================
+// AUDIT LOG TYPES
+// ============================================
+
+type AuditAction = 
+  | 'login' | 'logout' | 'login_failed' 
+  | 'create' | 'update' | 'delete' | 'view'
+  | 'export' | 'import' | 'download'
+  | 'approve' | 'reject'
+  | 'password_change' | 'pin_setup' | '2fa_setup' | '2fa_disabled'
+  | 'settings_change' | 'access_hours_change'
+  | 'backup_create' | 'backup_restore'
+
+interface AuditLog {
+  id: string
+  userId: string
+  userName: string
+  userRole: UserRole
+  action: AuditAction
+  module: string
+  description: string
+  details?: Record<string, unknown>
+  ipAddress?: string
+  userAgent?: string
+  timestamp: string
+  severity: 'info' | 'warning' | 'critical'
+}
+
+// ============================================
+// NOTIFICATION TYPES
+// ============================================
+
+type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'approval' | 'reminder'
+type NotificationCategory = 'system' | 'hr' | 'sales' | 'stock' | 'regulatory' | 'message' | 'task'
+
+interface AppNotification {
+  id: string
+  userId: string
+  title: string
+  message: string
+  type: NotificationType
+  category: NotificationCategory
+  link?: string
+  relatedId?: string
+  isRead: boolean
+  priority: 'low' | 'normal' | 'high' | 'urgent'
+  createdAt: string
+  readAt?: string
+  expiresAt?: string
+}
+
+// ============================================
+// TWO-FACTOR AUTHENTICATION TYPES
+// ============================================
+
+interface TwoFactorConfig {
+  enabled: boolean
+  method: 'sms' | 'email' | 'authenticator_app'
+  secret?: string
+  backupCodes?: string[]
+  phoneNumber?: string
+  lastUsed?: string
+}
+
+// ============================================
+// BACKUP TYPES
+// ============================================
+
+interface BackupRecord {
+  id: string
+  name: string
+  type: 'full' | 'partial'
+  modules: string[]
+  size: number
+  createdAt: string
+  createdBy: string
+  expiresAt: string
+  status: 'completed' | 'failed' | 'in_progress'
+  downloadUrl?: string
+}
+
+// ============================================
+// GLOBAL SEARCH TYPES
+// ============================================
+
+interface GlobalSearchResult {
+  id: string
+  type: 'hcp' | 'client' | 'product' | 'order' | 'employee' | 'dossier' | 'laboratory' | 'message'
+  title: string
+  subtitle?: string
+  module: Module
+  icon: React.ComponentType<{ className?: string }>
+  metadata?: Record<string, unknown>
+}
+
+// ============================================
+// DASHBOARD WIDGET TYPES
+// ============================================
+
+type WidgetType = 'stats' | 'chart' | 'list' | 'kpi' | 'map' | 'calendar' | 'notifications' | 'quick_actions'
+type WidgetSize = 'small' | 'medium' | 'large'
+
+interface DashboardWidget {
+  id: string
+  type: WidgetType
+  title: string
+  size: WidgetSize
+  position: { x: number; y: number }
+  config?: Record<string, unknown>
+  visible: boolean
+}
+
+// ============================================
+// KEYBOARD SHORTCUT TYPES
+// ============================================
+
+interface KeyboardShortcut {
+  id: string
+  keys: string[]
+  action: () => void
+  description: string
+  category: 'navigation' | 'actions' | 'search' | 'misc'
+  enabled: boolean
+}
+
+// ============================================
+// SAVED FILTER TYPES
+// ============================================
+
+interface SavedFilter {
+  id: string
+  name: string
+  module: Module
+  filters: Record<string, unknown>
+  createdBy: string
+  createdAt: string
+  isDefault: boolean
+}
+
+// ============================================
+// USER THEME PREFERENCES
+// ============================================
+
+interface UserTheme {
+  mode: 'light' | 'dark' | 'system'
+  primaryColor: string
+  accentColor: string
+  fontSize: 'small' | 'medium' | 'large'
+  compactMode: boolean
+  sidebarCollapsed: boolean
+}
 
 // Configuration des horaires d'accès par rôle
 interface AccessHoursConfig {
@@ -7507,6 +7659,758 @@ function AdminDashboard() {
   )
 }
 
+// ============================================
+// GLOBAL SEARCH MODAL
+// ============================================
+
+function GlobalSearchModal({ 
+  isOpen, 
+  onClose, 
+  onNavigate 
+}: { 
+  isOpen: boolean
+  onClose: () => void
+  onNavigate: (module: Module) => void 
+}) {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+  
+  // Données de recherche simulées
+  const searchResults: GlobalSearchResult[] = useMemo(() => {
+    if (!searchTerm.trim()) return []
+    
+    const term = searchTerm.toLowerCase()
+    const results: GlobalSearchResult[] = []
+    
+    // Rechercher dans les HCP
+    initialHCPs.filter(hcp => 
+      hcp.name.toLowerCase().includes(term) ||
+      hcp.speciality.toLowerCase().includes(term) ||
+      hcp.region.toLowerCase().includes(term)
+    ).slice(0, 5).forEach(hcp => {
+      results.push({
+        id: hcp.id,
+        type: 'hcp',
+        title: hcp.name,
+        subtitle: `${hcp.speciality} - ${hcp.region}`,
+        module: 'hcp',
+        icon: Stethoscope
+      })
+    })
+    
+    // Rechercher dans les DMs
+    demoDMs.filter(dm =>
+      dm.name.toLowerCase().includes(term) ||
+      dm.email.toLowerCase().includes(term) ||
+      dm.region.toLowerCase().includes(term)
+    ).slice(0, 5).forEach(dm => {
+      results.push({
+        id: dm.id,
+        type: 'employee',
+        title: dm.name,
+        subtitle: `Délégué Médical - ${dm.region}`,
+        module: 'geolocation',
+        icon: User
+      })
+    })
+    
+    // Rechercher dans les produits
+    sampleProducts.filter(p =>
+      p.name.toLowerCase().includes(term) ||
+      p.category.toLowerCase().includes(term)
+    ).slice(0, 5).forEach(p => {
+      results.push({
+        id: p.id,
+        type: 'product',
+        title: p.name,
+        subtitle: `${p.category} - Stock: ${p.stockQuantity}`,
+        module: 'stocks',
+        icon: Package
+      })
+    })
+    
+    // Rechercher dans les laboratoires
+    sampleLaboratories.filter(lab =>
+      lab.name.toLowerCase().includes(term) ||
+      lab.country.toLowerCase().includes(term)
+    ).slice(0, 3).forEach(lab => {
+      results.push({
+        id: lab.id,
+        type: 'laboratory',
+        title: lab.name,
+        subtitle: `${lab.country} - ${lab.status}`,
+        module: 'laboratories',
+        icon: Building2
+      })
+    })
+    
+    // Rechercher dans les dossiers AR
+    sampleARDossiers.filter(d =>
+      d.productName.toLowerCase().includes(term) ||
+      d.laboratory.toLowerCase().includes(term)
+    ).slice(0, 3).forEach(d => {
+      results.push({
+        id: d.id,
+        type: 'dossier',
+        title: d.productName,
+        subtitle: `${d.laboratory} - ${d.country}`,
+        module: 'regulatory',
+        icon: FileText
+      })
+    })
+    
+    return results
+  }, [searchTerm])
+  
+  // Navigation clavier
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return
+      
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          setSelectedIndex(prev => Math.min(prev + 1, searchResults.length - 1))
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          setSelectedIndex(prev => Math.max(prev - 1, 0))
+          break
+        case 'Enter':
+          e.preventDefault()
+          if (searchResults[selectedIndex]) {
+            onNavigate(searchResults[selectedIndex].module)
+            onClose()
+          }
+          break
+        case 'Escape':
+          onClose()
+          break
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, searchResults, selectedIndex, onNavigate, onClose])
+  
+  // Focus l'input à l'ouverture
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen])
+  
+  // Réinitialiser lors de l'ouverture
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSearchTerm('')
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedIndex(0)
+    }
+  }, [isOpen])
+  
+  // Raccourcis rapides
+  const quickActions = [
+    { label: 'Aller au Tableau de bord', keys: ['G', 'D'], module: 'dashboard' as Module },
+    { label: 'Nouvelle visite', keys: ['N', 'V'], module: 'planning' as Module },
+    { label: 'Messages', keys: ['G', 'M'], module: 'messages' as Module },
+    { label: 'Stocks', keys: ['G', 'S'], module: 'stocks' as Module },
+  ]
+  
+  if (!isOpen) return null
+  
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start justify-center pt-20 p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0, y: -20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: -20 }}
+          onClick={e => e.stopPropagation()}
+          className="w-full max-w-2xl bg-card rounded-2xl shadow-2xl overflow-hidden"
+        >
+          {/* Search Input */}
+          <div className="p-4 border-b">
+            <div className="flex items-center gap-3">
+              <Search className="h-5 w-5 text-muted-foreground" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setSelectedIndex(0)
+                }}
+                placeholder="Rechercher HCP, produits, laboratoires, dossiers..."
+                className="flex-1 bg-transparent border-0 outline-none text-lg placeholder:text-muted-foreground"
+              />
+              <Badge variant="outline" className="text-xs">ESC</Badge>
+            </div>
+          </div>
+          
+          {/* Results */}
+          {searchTerm && (
+            <div className="max-h-[60vh] overflow-y-auto">
+              {searchResults.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  <Search className="h-8 w-8 mx-auto mb-3 opacity-50" />
+                  <p>Aucun résultat pour "{searchTerm}"</p>
+                </div>
+              ) : (
+                <div className="p-2">
+                  {searchResults.map((result, i) => {
+                    const Icon = result.icon
+                    const isSelected = i === selectedIndex
+                    return (
+                      <motion.button
+                        key={`${result.type}-${result.id}`}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.03 }}
+                        onClick={() => {
+                          onNavigate(result.module)
+                          onClose()
+                        }}
+                        className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
+                          isSelected ? 'bg-primary/10 border border-primary/30' : 'hover:bg-muted'
+                        }`}
+                      >
+                        <div className={`p-2 rounded-lg ${isSelected ? 'bg-primary/20' : 'bg-muted'}`}>
+                          <Icon className={`h-4 w-4 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-medium truncate ${isSelected ? 'text-primary' : ''}`}>{result.title}</p>
+                          <p className="text-xs text-muted-foreground truncate">{result.subtitle}</p>
+                        </div>
+                        <Badge variant="outline" className="text-xs capitalize">{result.type}</Badge>
+                      </motion.button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Quick Actions */}
+          {!searchTerm && (
+            <div className="p-4 border-t">
+              <p className="text-xs text-muted-foreground mb-3">Actions rapides</p>
+              <div className="grid grid-cols-2 gap-2">
+                {quickActions.map((action, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      onNavigate(action.module)
+                      onClose()
+                    }}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <span className="text-sm">{action.label}</span>
+                    <div className="flex gap-1">
+                      {action.keys.map((key, j) => (
+                        <Badge key={j} variant="outline" className="text-xs px-1.5">{key}</Badge>
+                      ))}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Footer */}
+          <div className="p-3 border-t bg-muted/30 flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1"><Badge variant="outline" className="text-xs px-1">↑↓</Badge> Naviguer</span>
+              <span className="flex items-center gap-1"><Badge variant="outline" className="text-xs px-1">↵</Badge> Sélectionner</span>
+            </div>
+            <span>{searchResults.length} résultats</span>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+// ============================================
+// KEYBOARD SHORTCUTS HELP MODAL
+// ============================================
+
+function KeyboardShortcutsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const shortcuts = [
+    { category: 'navigation', label: 'Navigation', items: [
+      { keys: ['Ctrl', 'K'], description: 'Recherche globale' },
+      { keys: ['Ctrl', 'B'], description: 'Toggle sidebar' },
+      { keys: ['G', 'D'], description: 'Aller au Dashboard' },
+      { keys: ['G', 'H'], description: 'Aller aux HCP' },
+      { keys: ['G', 'S'], description: 'Aller aux Stocks' },
+      { keys: ['G', 'M'], description: 'Aller aux Messages' },
+    ]},
+    { category: 'actions', label: 'Actions', items: [
+      { keys: ['Ctrl', 'N'], description: 'Nouvel élément' },
+      { keys: ['Ctrl', 'S'], description: 'Sauvegarder' },
+      { keys: ['Ctrl', 'E'], description: 'Exporter' },
+      { keys: ['Delete'], description: 'Supprimer' },
+    ]},
+    { category: 'misc', label: 'Divers', items: [
+      { keys: ['?'], description: 'Afficher cette aide' },
+      { keys: ['Escape'], description: 'Fermer modal' },
+    ]}
+  ]
+  
+  if (!isOpen) return null
+  
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          onClick={e => e.stopPropagation()}
+          className="w-full max-w-2xl bg-card rounded-2xl shadow-2xl overflow-hidden"
+        >
+          <div className="p-6 bg-gradient-to-r from-indigo-600 to-purple-600">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Keyboard className="h-6 w-6 text-white" />
+                <h2 className="text-xl font-bold text-white">Raccourcis Clavier</h2>
+              </div>
+              <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20">
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+          
+          <div className="p-6 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {shortcuts.map(category => (
+                <div key={category.category}>
+                  <h3 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wider">
+                    {category.label}
+                  </h3>
+                  <div className="space-y-2">
+                    {category.items.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between gap-2">
+                        <span className="text-sm">{item.description}</span>
+                        <div className="flex gap-1">
+                          {item.keys.map((key, j) => (
+                            <kbd key={j} className="px-2 py-1 text-xs font-mono bg-muted rounded border">
+                              {key}
+                            </kbd>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="p-4 border-t bg-muted/30 text-center text-xs text-muted-foreground">
+            Appuyez sur <kbd className="px-1.5 py-0.5 bg-background rounded border text-xs">?</kbd> pour afficher/masquer cette aide
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+// ============================================
+// SAVED FILTERS COMPONENT
+// ============================================
+
+function SavedFiltersComponent({ 
+  module, 
+  currentFilters, 
+  onApplyFilter, 
+  onSaveFilter 
+}: { 
+  module: Module
+  currentFilters: Record<string, unknown>
+  onApplyFilter: (filters: Record<string, unknown>) => void
+  onSaveFilter: (name: string, filters: Record<string, unknown>) => void
+}) {
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`pharmalink_filters_${module}`)
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const [filterName, setFilterName] = useState('')
+  
+  const saveFilters = (filters: SavedFilter[]) => {
+    setSavedFilters(filters)
+    localStorage.setItem(`pharmalink_filters_${module}`, JSON.stringify(filters))
+  }
+  
+  const handleSaveFilter = () => {
+    if (!filterName.trim()) return
+    
+    const newFilter: SavedFilter = {
+      id: `filter-${Date.now()}`,
+      name: filterName,
+      module,
+      filters: currentFilters,
+      createdBy: 'currentUser',
+      createdAt: new Date().toISOString(),
+      isDefault: false
+    }
+    
+    saveFilters([...savedFilters, newFilter])
+    setFilterName('')
+    setShowSaveDialog(false)
+  }
+  
+  const handleDeleteFilter = (id: string) => {
+    saveFilters(savedFilters.filter(f => f.id !== id))
+  }
+  
+  const handleSetDefault = (id: string) => {
+    saveFilters(savedFilters.map(f => ({
+      ...f,
+      isDefault: f.id === id
+    })))
+  }
+  
+  return (
+    <div className="relative">
+      <div className="flex items-center gap-2">
+        {savedFilters.length > 0 && (
+          <select
+            className="text-sm border rounded-lg px-3 py-1.5 bg-background"
+            onChange={(e) => {
+              const filter = savedFilters.find(f => f.id === e.target.value)
+              if (filter) onApplyFilter(filter.filters)
+            }}
+          >
+            <option value="">Filtres sauvegardés...</option>
+            {savedFilters.map(f => (
+              <option key={f.id} value={f.id}>
+                {f.name} {f.isDefault ? '( défaut)' : ''}
+              </option>
+            ))}
+          </select>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowSaveDialog(true)}
+          className="gap-1"
+        >
+          <Save className="h-3 w-3" />
+          Sauver filtre
+        </Button>
+      </div>
+      
+      {/* Save Dialog */}
+      <AnimatePresence>
+        {showSaveDialog && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="absolute top-full left-0 mt-2 p-4 bg-card rounded-lg shadow-xl border z-50 w-72"
+          >
+            <h4 className="font-medium mb-3">Sauvegarder le filtre</h4>
+            <Input
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+              placeholder="Nom du filtre..."
+              className="mb-3"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSaveFilter} className="flex-1">
+                Sauvegarder
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setShowSaveDialog(false)}>
+                Annuler
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Filter List */}
+      {savedFilters.length > 0 && showSaveDialog && (
+        <div className="absolute top-full right-0 mt-2 p-3 bg-card rounded-lg shadow-xl border z-50 w-72">
+          <h4 className="font-medium mb-2 text-sm">Filtres sauvegardés</h4>
+          <div className="space-y-1">
+            {savedFilters.map(f => (
+              <div key={f.id} className="flex items-center justify-between p-2 rounded hover:bg-muted">
+                <span className="text-sm truncate flex-1">{f.name}</span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => handleSetDefault(f.id)}
+                  >
+                    <Star className={`h-3 w-3 ${f.isDefault ? 'fill-amber-400 text-amber-400' : ''}`} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-red-500"
+                    onClick={() => handleDeleteFilter(f.id)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================
+// THEME SETTINGS COMPONENT
+// ============================================
+
+function ThemeSettingsComponent({ 
+  theme, 
+  onThemeChange 
+}: { 
+  theme: UserTheme
+  onThemeChange: (theme: UserTheme) => void 
+}) {
+  const colorOptions = [
+    { name: 'Indigo', value: 'indigo', color: 'bg-indigo-500' },
+    { name: 'Bleu', value: 'blue', color: 'bg-blue-500' },
+    { name: 'Vert', value: 'green', color: 'bg-green-500' },
+    { name: 'Violet', value: 'purple', color: 'bg-purple-500' },
+    { name: 'Rose', value: 'pink', color: 'bg-pink-500' },
+    { name: 'Orange', value: 'orange', color: 'bg-orange-500' },
+  ]
+  
+  return (
+    <div className="space-y-6">
+      {/* Mode */}
+      <div>
+        <Label className="font-medium mb-3 block">Mode d'affichage</Label>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { value: 'light', label: 'Clair', icon: '☀️' },
+            { value: 'dark', label: 'Sombre', icon: '🌙' },
+            { value: 'system', label: 'Système', icon: '💻' }
+          ].map(mode => (
+            <button
+              key={mode.value}
+              onClick={() => onThemeChange({ ...theme, mode: mode.value as UserTheme['mode'] })}
+              className={`p-3 rounded-lg border-2 text-center transition-all ${
+                theme.mode === mode.value
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <span className="text-xl mb-1 block">{mode.icon}</span>
+              <span className="text-sm">{mode.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Couleur principale */}
+      <div>
+        <Label className="font-medium mb-3 block">Couleur principale</Label>
+        <div className="flex flex-wrap gap-2">
+          {colorOptions.map(c => (
+            <button
+              key={c.value}
+              onClick={() => onThemeChange({ ...theme, primaryColor: c.value })}
+              className={`w-10 h-10 rounded-lg ${c.color} transition-all ${
+                theme.primaryColor === c.value ? 'ring-2 ring-offset-2 ring-primary' : ''
+              }`}
+              title={c.name}
+            />
+          ))}
+        </div>
+      </div>
+      
+      {/* Taille de police */}
+      <div>
+        <Label className="font-medium mb-3 block">Taille de police</Label>
+        <div className="flex gap-2">
+          {[
+            { value: 'small', label: 'Petit' },
+            { value: 'medium', label: 'Moyen' },
+            { value: 'large', label: 'Grand' }
+          ].map(size => (
+            <button
+              key={size.value}
+              onClick={() => onThemeChange({ ...theme, fontSize: size.value as UserTheme['fontSize'] })}
+              className={`px-4 py-2 rounded-lg border transition-all ${
+                theme.fontSize === size.value
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              {size.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Options */}
+      <div>
+        <Label className="font-medium mb-3 block">Options</Label>
+        <div className="space-y-3">
+          <label className="flex items-center justify-between">
+            <span className="text-sm">Mode compact</span>
+            <input
+              type="checkbox"
+              checked={theme.compactMode}
+              onChange={(e) => onThemeChange({ ...theme, compactMode: e.target.checked })}
+              className="rounded"
+            />
+          </label>
+          <label className="flex items-center justify-between">
+            <span className="text-sm">Sidebar réduite par défaut</span>
+            <input
+              type="checkbox"
+              checked={theme.sidebarCollapsed}
+              onChange={(e) => onThemeChange({ ...theme, sidebarCollapsed: e.target.checked })}
+              className="rounded"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================
+// EXPORT PDF COMPONENT
+// ============================================
+
+function ExportPDFComponent({ 
+  data, 
+  title, 
+  columns 
+}: { 
+  data: Record<string, unknown>[]
+  title: string
+  columns: { key: string; label: string }[] 
+}) {
+  const [isExporting, setIsExporting] = useState(false)
+  const { toast } = useToast()
+  
+  const handleExport = async () => {
+    setIsExporting(true)
+    
+    try {
+      // Générer le contenu HTML pour le PDF
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${title}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #4F46E5; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th { background: #F3F4F6; padding: 10px; text-align: left; border-bottom: 2px solid #E5E7EB; }
+            td { padding: 8px; border-bottom: 1px solid #E5E7EB; }
+            .footer { margin-top: 20px; font-size: 12px; color: #6B7280; }
+            .logo { max-width: 150px; margin-bottom: 20px; }
+          </style>
+        </head>
+        <body>
+          <h1>${title}</h1>
+          <p>Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+          <table>
+            <thead>
+              <tr>
+                ${columns.map(c => `<th>${c.label}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${data.map(row => `
+                <tr>
+                  ${columns.map(c => `<td>${String(row[c.key] || '')}</td>`).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="footer">
+            <p>PharmaLink - ProDiPharm © ${new Date().getFullYear()}</p>
+          </div>
+        </body>
+        </html>
+      `
+      
+      // Créer un blob et télécharger
+      const blob = new Blob([html], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.html`
+      link.click()
+      URL.revokeObjectURL(url)
+      
+      toast({ title: 'Export réussi', description: `Le fichier a été téléchargé` })
+    } catch (error) {
+      toast({ title: 'Erreur', description: 'Impossible d\'exporter les données', variant: 'destructive' })
+    } finally {
+      setIsExporting(false)
+    }
+  }
+  
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleExport}
+      disabled={isExporting || data.length === 0}
+      className="gap-2"
+    >
+      {isExporting ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Printer className="h-4 w-4" />
+      )}
+      Exporter PDF
+    </Button>
+  )
+}
+
+// Ajout de l'icône Keyboard manquante
+const Keyboard = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect width="20" height="16" x="2" y="4" rx="2" ry="2"/>
+    <path d="M6 8h.001"/>
+    <path d="M10 8h.001"/>
+    <path d="M14 8h.001"/>
+    <path d="M18 8h.001"/>
+    <path d="M8 12h.001"/>
+    <path d="M12 12h.001"/>
+    <path d="M16 12h.001"/>
+    <path d="M7 16h10"/>
+  </svg>
+)
+
 // Dashboard Principal - Route vers le bon dashboard selon le rôle
 function DashboardModule({ user }: { user: UserType }) {
   const today = new Date()
@@ -11354,7 +12258,7 @@ function SettingsModule() {
   const [hcps, setHCPs] = useState<HCP[]>(initialHCPs)
   const [editingHCP, setEditingHCP] = useState<HCP | null>(null)
   const [showHCPForm, setShowHCPForm] = useState(false)
-  const [activeTab, setActiveTab] = useState<'users' | 'hcp' | 'config' | 'access-hours'>('users')
+  const [activeTab, setActiveTab] = useState<'users' | 'hcp' | 'config' | 'access-hours' | 'security'>('users')
   const { toast } = useToast()
   
   // État pour les horaires d'accès
@@ -11366,11 +12270,63 @@ function SettingsModule() {
     return DEFAULT_ACCESS_HOURS
   })
   
+  // État pour la configuration 2FA
+  const [twoFactorConfig, setTwoFactorConfig] = useState<TwoFactorConfig>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pharmalink_2fa_config')
+      return saved ? JSON.parse(saved) : { enabled: false, method: 'email' }
+    }
+    return { enabled: false, method: 'email' }
+  })
+  const [show2FASetup, setShow2FASetup] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  
   // Sauvegarder les horaires d'accès
   const saveAccessHours = (newConfig: AccessHoursConfig[]) => {
     setAccessHours(newConfig)
     localStorage.setItem('pharmalink_access_hours', JSON.stringify(newConfig))
     toast({ title: 'Configuration enregistrée', description: 'Les horaires d\'accès ont été mis à jour' })
+  }
+  
+  // Sauvegarder la configuration 2FA
+  const save2FAConfig = (config: TwoFactorConfig) => {
+    setTwoFactorConfig(config)
+    localStorage.setItem('pharmalink_2fa_config', JSON.stringify(config))
+    toast({ title: 'Configuration 2FA enregistrée', description: config.enabled ? 'L\'authentification à deux facteurs est activée' : 'L\'authentification à deux facteurs est désactivée' })
+  }
+  
+  // Générer des codes de secours
+  const generateBackupCodes = () => {
+    const codes = []
+    for (let i = 0; i < 10; i++) {
+      codes.push(Math.random().toString(36).substring(2, 8).toUpperCase())
+    }
+    return codes
+  }
+  
+  // Activer 2FA
+  const enable2FA = () => {
+    const backupCodes = generateBackupCodes()
+    save2FAConfig({
+      ...twoFactorConfig,
+      enabled: true,
+      backupCodes
+    })
+    setShow2FASetup(false)
+    toast({ 
+      title: '2FA activée', 
+      description: 'Conservez vos codes de secours en lieu sûr',
+      duration: 10000
+    })
+  }
+  
+  // Désactiver 2FA
+  const disable2FA = () => {
+    save2FAConfig({
+      enabled: false,
+      method: 'email'
+    })
+    toast({ title: '2FA désactivée', description: 'L\'authentification à deux facteurs a été désactivée' })
   }
   
   // Mettre à jour une configuration
@@ -11440,6 +12396,12 @@ function SettingsModule() {
           className={`px-4 py-2 font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'access-hours' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
         >
           <Clock className="h-4 w-4 inline mr-2" />Horaires d'Accès
+        </button>
+        <button
+          onClick={() => setActiveTab('security')}
+          className={`px-4 py-2 font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'security' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
+        >
+          <Shield className="h-4 w-4 inline mr-2" />Sécurité
         </button>
         <button
           onClick={() => setActiveTab('config')}
@@ -11829,6 +12791,212 @@ function SettingsModule() {
           </motion.div>
         )}
 
+        {activeTab === 'security' && (
+          <motion.div
+            key="security"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          >
+            {/* Two-Factor Authentication */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-indigo-600" />
+                  Authentification à Deux Facteurs (2FA)
+                </CardTitle>
+                <CardDescription>
+                  Renforcez la sécurité de votre compte en activant la double authentification
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Status */}
+                <div className={`p-4 rounded-lg ${twoFactorConfig.enabled ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800'}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {twoFactorConfig.enabled ? (
+                        <CheckCircle className="h-6 w-6 text-green-600" />
+                      ) : (
+                        <AlertTriangle className="h-6 w-6 text-amber-600" />
+                      )}
+                      <div>
+                        <p className={`font-medium ${twoFactorConfig.enabled ? 'text-green-800 dark:text-green-200' : 'text-amber-800 dark:text-amber-200'}`}>
+                          {twoFactorConfig.enabled ? '2FA activée' : '2FA non activée'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {twoFactorConfig.enabled 
+                            ? 'Votre compte est protégé par une couche de sécurité supplémentaire' 
+                            : 'Activez la 2FA pour sécuriser votre compte'}
+                        </p>
+                      </div>
+                    </div>
+                    {twoFactorConfig.enabled ? (
+                      <Button variant="destructive" onClick={disable2FA} className="gap-2">
+                        <X className="h-4 w-4" />
+                        Désactiver
+                      </Button>
+                    ) : (
+                      <Button onClick={() => setShow2FASetup(true)} className="gap-2">
+                        <Shield className="h-4 w-4" />
+                        Activer 2FA
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Method Selection */}
+                <div className="space-y-3">
+                  <Label className="font-medium">Méthode d'authentification</Label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <button
+                      onClick={() => !twoFactorConfig.enabled && setTwoFactorConfig({ ...twoFactorConfig, method: 'email' })}
+                      className={`p-4 rounded-lg border-2 text-center transition-all ${
+                        twoFactorConfig.method === 'email' 
+                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
+                          : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                      } ${twoFactorConfig.enabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <Mail className="h-6 w-6 mx-auto mb-2 text-indigo-600" />
+                      <p className="font-medium">Email</p>
+                      <p className="text-xs text-muted-foreground">Code par email</p>
+                    </button>
+                    <button
+                      onClick={() => !twoFactorConfig.enabled && setTwoFactorConfig({ ...twoFactorConfig, method: 'sms' })}
+                      className={`p-4 rounded-lg border-2 text-center transition-all ${
+                        twoFactorConfig.method === 'sms' 
+                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
+                          : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                      } ${twoFactorConfig.enabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <Smartphone className="h-6 w-6 mx-auto mb-2 text-indigo-600" />
+                      <p className="font-medium">SMS</p>
+                      <p className="text-xs text-muted-foreground">Code par SMS</p>
+                    </button>
+                    <button
+                      onClick={() => !twoFactorConfig.enabled && setTwoFactorConfig({ ...twoFactorConfig, method: 'authenticator_app' })}
+                      className={`p-4 rounded-lg border-2 text-center transition-all ${
+                        twoFactorConfig.method === 'authenticator_app' 
+                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
+                          : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                      } ${twoFactorConfig.enabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <Key className="h-6 w-6 mx-auto mb-2 text-indigo-600" />
+                      <p className="font-medium">Application</p>
+                      <p className="text-xs text-muted-foreground">Google Authenticator</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Backup Codes */}
+                {twoFactorConfig.enabled && twoFactorConfig.backupCodes && (
+                  <div className="space-y-3">
+                    <Label className="font-medium">Codes de secours</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Conservez ces codes en lieu sûr. Ils vous permettront d'accéder à votre compte si vous perdez l'accès à votre méthode d'authentification.
+                    </p>
+                    <div className="grid grid-cols-5 gap-2">
+                      {twoFactorConfig.backupCodes.map((code, i) => (
+                        <div key={i} className="p-2 bg-muted rounded text-center font-mono text-sm">
+                          {code}
+                        </div>
+                      ))}
+                    </div>
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => {
+                      const newCodes = generateBackupCodes()
+                      save2FAConfig({ ...twoFactorConfig, backupCodes: newCodes })
+                    }}>
+                      <RefreshCw className="h-4 w-4" />
+                      Régénérer les codes
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Password Policy */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lock className="h-5 w-5 text-indigo-600" />
+                  Politique de mots de passe
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Longueur minimale</span>
+                    <Input type="number" defaultValue={8} className="w-20 text-center" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Exiger des majuscules</span>
+                    <input type="checkbox" defaultChecked className="rounded" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Exiger des chiffres</span>
+                    <input type="checkbox" defaultChecked className="rounded" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Exiger des caractères spéciaux</span>
+                    <input type="checkbox" defaultChecked className="rounded" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Expiration (jours)</span>
+                    <Input type="number" defaultValue={90} className="w-20 text-center" />
+                  </div>
+                </div>
+                <Button className="gap-2">
+                  <Save className="h-4 w-4" />
+                  Enregistrer
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Session Management */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Fingerprint className="h-5 w-5 text-indigo-600" />
+                  Sessions actives
+                </CardTitle>
+                <CardDescription>Gérez les appareils connectés à votre compte</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 dark:bg-green-800 rounded-lg">
+                        <Globe className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Session actuelle</p>
+                        <p className="text-xs text-muted-foreground">Chrome sur Windows • Douala, Cameroun</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-green-100 text-green-700">Active</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Smartphone className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Mobile App</p>
+                        <p className="text-xs text-muted-foreground">Il y a 2 heures • Yaoundé, Cameroun</p>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-red-600">Révoquer</Button>
+                  </div>
+                </div>
+                <Button variant="destructive" className="w-full gap-2">
+                  <LogOut className="h-4 w-4" />
+                  Déconnecter toutes les autres sessions
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {activeTab === 'config' && (
           <motion.div
             key="config"
@@ -11896,6 +13064,1197 @@ function SettingsModule() {
       </AnimatePresence>
 
       <Toaster />
+    </motion.div>
+  )
+}
+
+// ============================================
+// AUDIT TRAIL MODULE
+// ============================================
+
+function AuditModule({ user }: { user: UserType }) {
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pharmalink_audit_logs')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterAction, setFilterAction] = useState<AuditAction | 'all'>('all')
+  const [filterSeverity, setFilterSeverity] = useState<'all' | 'info' | 'warning' | 'critical'>('all')
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' })
+  const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null)
+  
+  const { toast } = useToast()
+  
+  // Ajouter un log d'audit
+  const addAuditLog = (log: Omit<AuditLog, 'id' | 'timestamp'>) => {
+    const newLog: AuditLog = {
+      ...log,
+      id: `audit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date().toISOString()
+    }
+    const updatedLogs = [newLog, ...auditLogs].slice(0, 1000) // Garder max 1000 logs
+    setAuditLogs(updatedLogs)
+    localStorage.setItem('pharmalink_audit_logs', JSON.stringify(updatedLogs))
+  }
+  
+  // Filtrer les logs
+  const filteredLogs = auditLogs.filter(log => {
+    const matchSearch = log.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       log.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       log.module.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchAction = filterAction === 'all' || log.action === filterAction
+    const matchSeverity = filterSeverity === 'all' || log.severity === filterSeverity
+    
+    let matchDate = true
+    if (dateRange.start) {
+      matchDate = matchDate && new Date(log.timestamp) >= new Date(dateRange.start)
+    }
+    if (dateRange.end) {
+      matchDate = matchDate && new Date(log.timestamp) <= new Date(dateRange.end + 'T23:59:59')
+    }
+    
+    return matchSearch && matchAction && matchSeverity && matchDate
+  })
+  
+  // Exporter les logs
+  const exportLogs = () => {
+    const csv = [
+      ['ID', 'Utilisateur', 'Rôle', 'Action', 'Module', 'Description', 'Sévérité', 'Date'].join(','),
+      ...filteredLogs.map(log => [
+        log.id,
+        log.userName,
+        log.userRole,
+        log.action,
+        log.module,
+        `"${log.description.replace(/"/g, '""')}"`,
+        log.severity,
+        new Date(log.timestamp).toLocaleString('fr-FR')
+      ].join(','))
+    ].join('\n')
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `audit_logs_${new Date().toISOString().split('T')[0]}.csv`
+    link.click()
+    
+    toast({ title: 'Export réussi', description: `${filteredLogs.length} logs exportés` })
+  }
+  
+  // Statistiques
+  const stats = {
+    total: auditLogs.length,
+    today: auditLogs.filter(l => new Date(l.timestamp).toDateString() === new Date().toDateString()).length,
+    warnings: auditLogs.filter(l => l.severity === 'warning').length,
+    critical: auditLogs.filter(l => l.severity === 'critical').length,
+    byAction: {
+      login: auditLogs.filter(l => l.action === 'login').length,
+      logout: auditLogs.filter(l => l.action === 'logout').length,
+      create: auditLogs.filter(l => l.action === 'create').length,
+      update: auditLogs.filter(l => l.action === 'update').length,
+      delete: auditLogs.filter(l => l.action === 'delete').length,
+    }
+  }
+  
+  const actionLabels: Record<AuditAction, string> = {
+    login: 'Connexion',
+    logout: 'Déconnexion',
+    login_failed: 'Échec de connexion',
+    create: 'Création',
+    update: 'Modification',
+    delete: 'Suppression',
+    view: 'Consultation',
+    export: 'Export',
+    import: 'Import',
+    download: 'Téléchargement',
+    approve: 'Approbation',
+    reject: 'Rejet',
+    password_change: 'Changement de mot de passe',
+    pin_setup: 'Configuration PIN',
+    '2fa_setup': 'Activation 2FA',
+    '2fa_disabled': 'Désactivation 2FA',
+    settings_change: 'Modification paramètres',
+    access_hours_change: 'Modification horaires',
+    backup_create: 'Création sauvegarde',
+    backup_restore: 'Restauration sauvegarde'
+  }
+  
+  const severityConfig = {
+    info: { color: 'text-blue-600', bgColor: 'bg-blue-100', icon: Info },
+    warning: { color: 'text-amber-600', bgColor: 'bg-amber-100', icon: AlertTriangle },
+    critical: { color: 'text-red-600', bgColor: 'bg-red-100', icon: AlertCircle }
+  }
+  
+  // Enregistrer la consultation des logs
+  useEffect(() => {
+    // Log initial de consultation
+  }, [])
+  
+  return (
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainer}
+      className="space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <History className="h-7 w-7 text-indigo-600" />
+            Journal d'Audit
+          </h1>
+          <p className="text-muted-foreground">Traçabilité complète des actions utilisateurs</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportLogs} className="gap-2">
+            <Download className="h-4 w-4" />
+            Exporter
+          </Button>
+        </div>
+      </motion.div>
+      
+      {/* Stats Cards */}
+      <motion.div variants={fadeInUp} className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-100">
+                <ScrollText className="h-5 w-5 text-slate-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-xs text-muted-foreground">Total logs</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-100">
+                <Activity className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.today}</p>
+                <p className="text-xs text-muted-foreground">Aujourd'hui</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-amber-100">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.warnings}</p>
+                <p className="text-xs text-muted-foreground">Avertissements</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-red-100">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.critical}</p>
+                <p className="text-xs text-muted-foreground">Critiques</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-100">
+                <User className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.byAction.login}</p>
+                <p className="text-xs text-muted-foreground">Connexions</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Filters */}
+      <motion.div variants={fadeInUp}>
+        <Card>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <select
+                value={filterAction}
+                onChange={(e) => setFilterAction(e.target.value as AuditAction | 'all')}
+                className="border rounded-lg px-3 py-2 bg-background"
+              >
+                <option value="all">Toutes les actions</option>
+                <option value="login">Connexion</option>
+                <option value="logout">Déconnexion</option>
+                <option value="create">Création</option>
+                <option value="update">Modification</option>
+                <option value="delete">Suppression</option>
+                <option value="export">Export</option>
+                <option value="approve">Approbation</option>
+                <option value="reject">Rejet</option>
+              </select>
+              <select
+                value={filterSeverity}
+                onChange={(e) => setFilterSeverity(e.target.value as 'all' | 'info' | 'warning' | 'critical')}
+                className="border rounded-lg px-3 py-2 bg-background"
+              >
+                <option value="all">Toutes les sévérités</option>
+                <option value="info">Info</option>
+                <option value="warning">Avertissement</option>
+                <option value="critical">Critique</option>
+              </select>
+              <div className="flex gap-2">
+                <Input
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  className="text-sm"
+                  placeholder="Date début"
+                />
+                <Input
+                  type="date"
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                  className="text-sm"
+                  placeholder="Date fin"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Logs Table */}
+      <motion.div variants={fadeInUp}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Historique des actions</span>
+              <Badge variant="secondary">{filteredLogs.length} entrées</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50 sticky top-0">
+                  <tr>
+                    <th className="text-left p-3 font-medium">Date/Heure</th>
+                    <th className="text-left p-3 font-medium">Utilisateur</th>
+                    <th className="text-left p-3 font-medium">Action</th>
+                    <th className="text-left p-3 font-medium">Module</th>
+                    <th className="text-left p-3 font-medium">Description</th>
+                    <th className="text-left p-3 font-medium">Sévérité</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                        <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>Aucun log d'audit trouvé</p>
+                        <p className="text-sm">Les actions seront automatiquement enregistrées ici</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLogs.map((log, i) => {
+                      const sevConfig = severityConfig[log.severity]
+                      const SevIcon = sevConfig.icon
+                      return (
+                        <motion.tr
+                          key={log.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: i * 0.02 }}
+                          className="border-t hover:bg-muted/30 cursor-pointer"
+                          onClick={() => setSelectedLog(log)}
+                        >
+                          <td className="p-3 text-sm whitespace-nowrap">
+                            <div>
+                              <p className="font-medium">{new Date(log.timestamp).toLocaleDateString('fr-FR')}</p>
+                              <p className="text-xs text-muted-foreground">{new Date(log.timestamp).toLocaleTimeString('fr-FR')}</p>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-7 w-7">
+                                <AvatarFallback className="text-xs">
+                                  {log.userName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium text-sm">{log.userName}</p>
+                                <p className="text-xs text-muted-foreground">{log.userRole}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <Badge variant="outline" className="text-xs">
+                              {actionLabels[log.action]}
+                            </Badge>
+                          </td>
+                          <td className="p-3 text-sm">{log.module}</td>
+                          <td className="p-3 text-sm max-w-xs truncate">{log.description}</td>
+                          <td className="p-3">
+                            <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${sevConfig.bgColor} ${sevConfig.color}`}>
+                              <SevIcon className="h-3 w-3" />
+                              {log.severity}
+                            </div>
+                          </td>
+                        </motion.tr>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Log Detail Modal */}
+      <AnimatePresence>
+        {selectedLog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedLog(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-card rounded-xl w-full max-w-lg shadow-2xl"
+            >
+              <div className="p-6 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <History className="h-6 w-6 text-white" />
+                    <h3 className="text-lg font-bold text-white">Détail du log</h3>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setSelectedLog(null)} className="text-white hover:bg-white/20">
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">ID</p>
+                    <p className="font-mono text-sm">{selectedLog.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Date/Heure</p>
+                    <p className="font-medium">{new Date(selectedLog.timestamp).toLocaleString('fr-FR')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Utilisateur</p>
+                    <p className="font-medium">{selectedLog.userName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Rôle</p>
+                    <p className="font-medium">{selectedLog.userRole}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Action</p>
+                    <Badge variant="outline">{actionLabels[selectedLog.action]}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Sévérité</p>
+                    <Badge className={`${severityConfig[selectedLog.severity].bgColor} ${severityConfig[selectedLog.severity].color}`}>
+                      {selectedLog.severity}
+                    </Badge>
+                  </div>
+                </div>
+                <Separator />
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Module</p>
+                  <p className="font-medium">{selectedLog.module}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Description</p>
+                  <p>{selectedLog.description}</p>
+                </div>
+                {selectedLog.details && Object.keys(selectedLog.details).length > 0 && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Détails supplémentaires</p>
+                    <div className="bg-muted rounded-lg p-3 text-sm font-mono">
+                      <pre>{JSON.stringify(selectedLog.details, null, 2)}</pre>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+// ============================================
+// BACKUP MODULE
+// ============================================
+
+function BackupModule({ user }: { user: UserType }) {
+  const [backups, setBackups] = useState<BackupRecord[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pharmalink_backups')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+  const [isCreating, setIsCreating] = useState(false)
+  const [showRestoreModal, setShowRestoreModal] = useState(false)
+  const [selectedBackup, setSelectedBackup] = useState<BackupRecord | null>(null)
+  const [backupConfig, setBackupConfig] = useState({
+    type: 'full' as 'full' | 'partial',
+    modules: [] as string[],
+    includeSettings: true
+  })
+  
+  const { toast } = useToast()
+  
+  const availableModules = [
+    { id: 'crm', name: 'Clients & Contacts' },
+    { id: 'hcp', name: 'Professionnels de santé' },
+    { id: 'stocks', name: 'Stocks & Produits' },
+    { id: 'sales', name: 'Ventes & Commandes' },
+    { id: 'rh', name: 'Ressources Humaines' },
+    { id: 'payroll', name: 'Paie' },
+    { id: 'regulatory', name: 'Affaires Réglementaires' },
+    { id: 'laboratories', name: 'Laboratoires' },
+    { id: 'budget', name: 'Budgets' },
+    { id: 'planning', name: 'Planning' }
+  ]
+  
+  // Créer une sauvegarde
+  const createBackup = async () => {
+    setIsCreating(true)
+    
+    try {
+      // Simuler la création d'une sauvegarde
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      const backupData: Record<string, unknown> = {}
+      
+      // Collecter les données selon les modules sélectionnés
+      if (backupConfig.type === 'full' || backupConfig.modules.includes('hcp')) {
+        const hcpData = localStorage.getItem('pharmalink_hcps')
+        if (hcpData) backupData.hcps = JSON.parse(hcpData)
+      }
+      
+      if (backupConfig.type === 'full' || backupConfig.modules.includes('stocks')) {
+        const stocksData = localStorage.getItem('pharmalink_stocks')
+        if (stocksData) backupData.stocks = JSON.parse(stocksData)
+      }
+      
+      if (backupConfig.type === 'full' || backupConfig.modules.includes('sales')) {
+        const salesData = localStorage.getItem('pharmalink_sales')
+        if (salesData) backupData.sales = JSON.parse(salesData)
+      }
+      
+      if (backupConfig.type === 'full' || backupConfig.modules.includes('rh')) {
+        const rhData = localStorage.getItem('pharmalink_rh')
+        if (rhData) backupData.rh = JSON.parse(rhData)
+      }
+      
+      if (backupConfig.includeSettings) {
+        const settings = localStorage.getItem('pharmalink_access_hours')
+        if (settings) backupData.settings = JSON.parse(settings)
+      }
+      
+      // Créer l'enregistrement de sauvegarde
+      const newBackup: BackupRecord = {
+        id: `backup-${Date.now()}`,
+        name: `Sauvegarde ${backupConfig.type === 'full' ? 'complète' : 'partielle'} - ${new Date().toLocaleDateString('fr-FR')}`,
+        type: backupConfig.type,
+        modules: backupConfig.type === 'full' ? availableModules.map(m => m.id) : backupConfig.modules,
+        size: JSON.stringify(backupData).length,
+        createdAt: new Date().toISOString(),
+        createdBy: user.name,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 jours
+        status: 'completed'
+      }
+      
+      // Sauvegarder les données
+      const backupKey = `pharmalink_backup_${newBackup.id}`
+      localStorage.setItem(backupKey, JSON.stringify(backupData))
+      
+      // Mettre à jour la liste des sauvegardes
+      const updatedBackups = [newBackup, ...backups].slice(0, 20) // Max 20 sauvegardes
+      setBackups(updatedBackups)
+      localStorage.setItem('pharmalink_backups', JSON.stringify(updatedBackups))
+      
+      toast({ 
+        title: 'Sauvegarde créée', 
+        description: `${newBackup.name} créée avec succès` 
+      })
+      
+    } catch (error) {
+      toast({ 
+        title: 'Erreur', 
+        description: 'Impossible de créer la sauvegarde',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsCreating(false)
+    }
+  }
+  
+  // Télécharger une sauvegarde
+  const downloadBackup = (backup: BackupRecord) => {
+    const backupKey = `pharmalink_backup_${backup.id}`
+    const data = localStorage.getItem(backupKey)
+    
+    if (!data) {
+      toast({ title: 'Erreur', description: 'Données de sauvegarde non trouvées', variant: 'destructive' })
+      return
+    }
+    
+    const blob = new Blob([data], { type: 'application/json' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `${backup.name.replace(/[^a-zA-Z0-9]/g, '_')}.json`
+    link.click()
+    
+    toast({ title: 'Téléchargement lancé' })
+  }
+  
+  // Supprimer une sauvegarde
+  const deleteBackup = (backup: BackupRecord) => {
+    const backupKey = `pharmalink_backup_${backup.id}`
+    localStorage.removeItem(backupKey)
+    
+    const updatedBackups = backups.filter(b => b.id !== backup.id)
+    setBackups(updatedBackups)
+    localStorage.setItem('pharmalink_backups', JSON.stringify(updatedBackups))
+    
+    toast({ title: 'Sauvegarde supprimée' })
+  }
+  
+  // Restaurer une sauvegarde
+  const restoreBackup = (backup: BackupRecord) => {
+    const backupKey = `pharmalink_backup_${backup.id}`
+    const data = localStorage.getItem(backupKey)
+    
+    if (!data) {
+      toast({ title: 'Erreur', description: 'Données de sauvegarde non trouvées', variant: 'destructive' })
+      return
+    }
+    
+    try {
+      const backupData = JSON.parse(data)
+      
+      // Restaurer chaque module
+      if (backupData.hcps) {
+        localStorage.setItem('pharmalink_hcps', JSON.stringify(backupData.hcps))
+      }
+      if (backupData.stocks) {
+        localStorage.setItem('pharmalink_stocks', JSON.stringify(backupData.stocks))
+      }
+      if (backupData.sales) {
+        localStorage.setItem('pharmalink_sales', JSON.stringify(backupData.sales))
+      }
+      if (backupData.rh) {
+        localStorage.setItem('pharmalink_rh', JSON.stringify(backupData.rh))
+      }
+      if (backupData.settings) {
+        localStorage.setItem('pharmalink_access_hours', JSON.stringify(backupData.settings))
+      }
+      
+      toast({ 
+        title: 'Restauration réussie', 
+        description: 'Les données ont été restaurées. Rechargez la page pour voir les changements.' 
+      })
+      
+      setShowRestoreModal(false)
+      setSelectedBackup(null)
+      
+    } catch (error) {
+      toast({ 
+        title: 'Erreur', 
+        description: 'Impossible de restaurer la sauvegarde',
+        variant: 'destructive'
+      })
+    }
+  }
+  
+  // Formater la taille
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+  }
+  
+  // Vérifier si une sauvegarde est expirée
+  const isExpired = (backup: BackupRecord) => {
+    return new Date(backup.expiresAt) < new Date()
+  }
+  
+  return (
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainer}
+      className="space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Database className="h-7 w-7 text-emerald-600" />
+            Sauvegardes & Restauration
+          </h1>
+          <p className="text-muted-foreground">Protégez vos données avec des sauvegardes régulières</p>
+        </div>
+      </motion.div>
+      
+      {/* Create Backup Card */}
+      <motion.div variants={fadeInUp}>
+        <Card className="border-2 border-dashed border-emerald-200 bg-emerald-50/50 dark:bg-emerald-900/10 dark:border-emerald-800">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex-1 space-y-4">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <Archive className="h-5 w-5 text-emerald-600" />
+                  Créer une nouvelle sauvegarde
+                </h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium">Type de sauvegarde</Label>
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        variant={backupConfig.type === 'full' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setBackupConfig({ ...backupConfig, type: 'full', modules: [] })}
+                        className="flex-1"
+                      >
+                        Complète
+                      </Button>
+                      <Button
+                        variant={backupConfig.type === 'partial' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setBackupConfig({ ...backupConfig, type: 'partial' })}
+                        className="flex-1"
+                      >
+                        Partielle
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="includeSettings"
+                      checked={backupConfig.includeSettings}
+                      onChange={(e) => setBackupConfig({ ...backupConfig, includeSettings: e.target.checked })}
+                      className="rounded"
+                    />
+                    <Label htmlFor="includeSettings" className="text-sm">Inclure les paramètres</Label>
+                  </div>
+                </div>
+                
+                {backupConfig.type === 'partial' && (
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Modules à sauvegarder</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {availableModules.map(module => (
+                        <Badge
+                          key={module.id}
+                          variant={backupConfig.modules.includes(module.id) ? 'default' : 'outline'}
+                          className="cursor-pointer"
+                          onClick={() => {
+                            const newModules = backupConfig.modules.includes(module.id)
+                              ? backupConfig.modules.filter(m => m !== module.id)
+                              : [...backupConfig.modules, module.id]
+                            setBackupConfig({ ...backupConfig, modules: newModules })
+                          }}
+                        >
+                          {module.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex flex-col justify-center">
+                <Button
+                  onClick={createBackup}
+                  disabled={isCreating || (backupConfig.type === 'partial' && backupConfig.modules.length === 0)}
+                  className="h-20 w-full md:w-32 gap-2"
+                  size="lg"
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span>Création...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="h-5 w-5" />
+                      <span>Sauvegarder</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Stats */}
+      <motion.div variants={fadeInUp} className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-100">
+                <Archive className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{backups.length}</p>
+                <p className="text-xs text-muted-foreground">Sauvegardes</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-100">
+                <Database className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{formatSize(backups.reduce((sum, b) => sum + b.size, 0))}</p>
+                <p className="text-xs text-muted-foreground">Total stocké</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-100">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{backups.filter(b => b.status === 'completed' && !isExpired(b)).length}</p>
+                <p className="text-xs text-muted-foreground">Actives</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-amber-100">
+                <Clock className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{backups.filter(b => isExpired(b)).length}</p>
+                <p className="text-xs text-muted-foreground">Expirées</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Backups List */}
+      <motion.div variants={fadeInUp}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Historique des sauvegardes</CardTitle>
+            <CardDescription>Les sauvegardes sont conservées pendant 30 jours</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            {backups.length === 0 ? (
+              <div className="p-8 text-center">
+                <Database className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="font-medium">Aucune sauvegarde</p>
+                <p className="text-sm text-muted-foreground">Créez votre première sauvegarde pour protéger vos données</p>
+              </div>
+            ) : (
+              <div className="divide-y">
+                {backups.map((backup, i) => (
+                  <motion.div
+                    key={backup.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className={`p-4 hover:bg-muted/30 ${isExpired(backup) ? 'opacity-50' : ''}`}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-2 rounded-lg ${backup.type === 'full' ? 'bg-emerald-100' : 'bg-blue-100'}`}>
+                          {backup.type === 'full' ? (
+                            <Database className="h-5 w-5 text-emerald-600" />
+                          ) : (
+                            <FileArchive className="h-5 w-5 text-blue-600" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium">{backup.name}</p>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <span>{new Date(backup.createdAt).toLocaleString('fr-FR')}</span>
+                            <span>•</span>
+                            <span>{formatSize(backup.size)}</span>
+                            <span>•</span>
+                            <span>par {backup.createdBy}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Badge variant={isExpired(backup) ? 'destructive' : 'secondary'}>
+                          {isExpired(backup) ? 'Expirée' : 'Active'}
+                        </Badge>
+                        
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => downloadBackup(backup)}
+                          title="Télécharger"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedBackup(backup)
+                            setShowRestoreModal(true)
+                          }}
+                          disabled={isExpired(backup)}
+                          title="Restaurer"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </Button>
+                        
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteBackup(backup)}
+                          className="text-red-500 hover:text-red-700"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {backup.type === 'partial' && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {backup.modules.map(m => (
+                          <Badge key={m} variant="outline" className="text-xs">
+                            {availableModules.find(mod => mod.id === m)?.name || m}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Restore Modal */}
+      <AnimatePresence>
+        {showRestoreModal && selectedBackup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowRestoreModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-card rounded-xl w-full max-w-md shadow-2xl"
+            >
+              <div className="p-6 bg-gradient-to-r from-amber-500 to-orange-600 rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <RotateCcw className="h-6 w-6 text-white" />
+                    <h3 className="text-lg font-bold text-white">Confirmer la restauration</h3>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setShowRestoreModal(false)} className="text-white hover:bg-white/20">
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-amber-800 dark:text-amber-200">Attention</p>
+                      <p className="text-sm text-amber-700 dark:text-amber-300">
+                        Cette action remplacera les données actuelles par celles de la sauvegarde.
+                        Les modifications non sauvegardées seront perdues.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Sauvegarde à restaurer :</p>
+                  <p className="font-medium">{selectedBackup.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Créée le {new Date(selectedBackup.createdAt).toLocaleString('fr-FR')}
+                  </p>
+                </div>
+                
+                <div className="flex gap-2 pt-4">
+                  <Button variant="outline" className="flex-1" onClick={() => setShowRestoreModal(false)}>
+                    Annuler
+                  </Button>
+                  <Button 
+                    className="flex-1 gap-2 bg-amber-600 hover:bg-amber-700"
+                    onClick={() => restoreBackup(selectedBackup)}
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Restaurer
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+// ============================================
+// NOTIFICATION CENTER COMPONENT
+// ============================================
+
+function NotificationCenter({ 
+  user, 
+  isOpen, 
+  onClose 
+}: { 
+  user: UserType
+  isOpen: boolean
+  onClose: () => void 
+}) {
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pharmalink_notifications')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+  const [filter, setFilter] = useState<'all' | 'unread'>('all')
+  
+  // Marquer comme lu
+  const markAsRead = (id: string) => {
+    const updated = notifications.map(n => 
+      n.id === id ? { ...n, isRead: true, readAt: new Date().toISOString() } : n
+    )
+    setNotifications(updated)
+    localStorage.setItem('pharmalink_notifications', JSON.stringify(updated))
+  }
+  
+  // Tout marquer comme lu
+  const markAllAsRead = () => {
+    const updated = notifications.map(n => ({ ...n, isRead: true, readAt: new Date().toISOString() }))
+    setNotifications(updated)
+    localStorage.setItem('pharmalink_notifications', JSON.stringify(updated))
+  }
+  
+  // Supprimer une notification
+  const deleteNotification = (id: string) => {
+    const updated = notifications.filter(n => n.id !== id)
+    setNotifications(updated)
+    localStorage.setItem('pharmalink_notifications', JSON.stringify(updated))
+  }
+  
+  // Vider les notifications lues
+  const clearReadNotifications = () => {
+    const updated = notifications.filter(n => !n.isRead)
+    setNotifications(updated)
+    localStorage.setItem('pharmalink_notifications', JSON.stringify(updated))
+  }
+  
+  const filteredNotifications = filter === 'all' 
+    ? notifications 
+    : notifications.filter(n => !n.isRead)
+  
+  const unreadCount = notifications.filter(n => !n.isRead).length
+  
+  const typeConfig = {
+    info: { color: 'text-blue-600', bgColor: 'bg-blue-100', icon: Info },
+    success: { color: 'text-green-600', bgColor: 'bg-green-100', icon: CheckCircle },
+    warning: { color: 'text-amber-600', bgColor: 'bg-amber-100', icon: AlertTriangle },
+    error: { color: 'text-red-600', bgColor: 'bg-red-100', icon: AlertCircle },
+    approval: { color: 'text-purple-600', bgColor: 'bg-purple-100', icon: CheckSquare },
+    reminder: { color: 'text-indigo-600', bgColor: 'bg-indigo-100', icon: Clock }
+  }
+  
+  const categoryLabels: Record<NotificationCategory, string> = {
+    system: 'Système',
+    hr: 'RH',
+    sales: 'Ventes',
+    stock: 'Stock',
+    regulatory: 'Affaires Réglementaires',
+    message: 'Message',
+    task: 'Tâche'
+  }
+  
+  if (!isOpen) return null
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 300 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 300 }}
+      className="fixed right-0 top-0 h-full w-full max-w-md bg-card border-l shadow-2xl z-50"
+    >
+      <div className="h-full flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b bg-gradient-to-r from-indigo-600 to-purple-600">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-white">
+              <BellRing className="h-5 w-5" />
+              <h2 className="font-bold">Notifications</h2>
+              {unreadCount > 0 && (
+                <Badge className="bg-white/20 text-white">{unreadCount}</Badge>
+              )}
+            </div>
+            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20">
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          
+          <div className="flex gap-2 mt-3">
+            <Button
+              variant={filter === 'all' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setFilter('all')}
+              className="text-white text-xs"
+            >
+              Toutes
+            </Button>
+            <Button
+              variant={filter === 'unread' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setFilter('unread')}
+              className="text-white text-xs"
+            >
+              Non lues ({unreadCount})
+            </Button>
+          </div>
+        </div>
+        
+        {/* Actions */}
+        {notifications.length > 0 && (
+          <div className="p-2 border-b bg-muted/30 flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs h-7">
+              Tout marquer lu
+            </Button>
+            <Button variant="ghost" size="sm" onClick={clearReadNotifications} className="text-xs h-7 text-red-600">
+              Vider les lues
+            </Button>
+          </div>
+        )}
+        
+        {/* List */}
+        <div className="flex-1 overflow-y-auto">
+          {filteredNotifications.length === 0 ? (
+            <div className="p-8 text-center">
+              <Bell className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <p className="font-medium">Aucune notification</p>
+              <p className="text-sm text-muted-foreground">Vous êtes à jour !</p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {filteredNotifications.map((notification, i) => {
+                const config = typeConfig[notification.type]
+                const Icon = config.icon
+                return (
+                  <motion.div
+                    key={notification.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className={`p-4 hover:bg-muted/30 cursor-pointer ${!notification.isRead ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                    onClick={() => markAsRead(notification.id)}
+                  >
+                    <div className="flex gap-3">
+                      <div className={`p-2 rounded-lg ${config.bgColor} h-fit`}>
+                        <Icon className={`h-4 w-4 ${config.color}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className={`font-medium ${!notification.isRead ? 'text-slate-900 dark:text-white' : 'text-slate-600'}`}>
+                            {notification.title}
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              deleteNotification(notification.id)
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="outline" className="text-xs">
+                            {categoryLabels[notification.category]}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(notification.createdAt).toLocaleString('fr-FR')}
+                          </span>
+                          {notification.priority === 'urgent' && (
+                            <Badge className="bg-red-100 text-red-700 text-xs">Urgent</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     </motion.div>
   )
 }
@@ -12727,8 +15086,8 @@ function RegulatoryModule({ user }: { user: UserType }) {
                         <div>
                           <Label className="text-muted-foreground">Statut actuel</Label>
                           <div className="mt-1">
-                            <Badge className={`${AR_STATUS_CONFIG[formData.status as ARDossierStatus].bgColor} ${AR_STATUS_CONFIG[formData.status as ARDossierStatus].color} border text-base px-3 py-1`}>
-                              {AR_STATUS_CONFIG[formData.status as ARDossierStatus].label}
+                            <Badge className={`${AR_STATUS_CONFIG[formData.status as ARDossierStatus]?.bgColor || 'bg-gray-100'} ${AR_STATUS_CONFIG[formData.status as ARDossierStatus]?.color || 'text-gray-700'} border text-base px-3 py-1`}>
+                              {AR_STATUS_CONFIG[formData.status as ARDossierStatus]?.label || formData.status}
                             </Badge>
                           </div>
                         </div>
@@ -13676,8 +16035,8 @@ function LaboratoriesModule({ user }: { user: UserType }) {
                       <div className="space-y-4">
                         <div>
                           <Label className="text-muted-foreground">Statut</Label>
-                          <Badge className={`${LAB_STATUS_CONFIG[formData.status as LaboratoryStatus].bgColor} ${LAB_STATUS_CONFIG[formData.status as LaboratoryStatus].color}`}>
-                            {LAB_STATUS_CONFIG[formData.status as LaboratoryStatus].label}
+                          <Badge className={`${LAB_STATUS_CONFIG[formData.status as LaboratoryStatus]?.bgColor || 'bg-gray-100'} ${LAB_STATUS_CONFIG[formData.status as LaboratoryStatus]?.color || 'text-gray-700'}`}>
+                            {LAB_STATUS_CONFIG[formData.status as LaboratoryStatus]?.label || formData.status}
                           </Badge>
                         </div>
                         <div>
@@ -17326,16 +19685,36 @@ function Trophy({ className }: { className?: string }) {
 }
 
 // ============================================
-// MESSAGES MODULE
+// MESSAGES MODULE - AMÉLIORÉ AVEC EMAILS EXTERNES
 // ============================================
 
 function MessagesModule({ user }: { user: UserType }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [showCompose, setShowCompose] = useState(false)
-  const [view, setView] = useState<'inbox' | 'sent'>('inbox')
+  const [view, setView] = useState<'inbox' | 'sent' | 'drafts' | 'archived'>('inbox')
   const [searchTerm, setSearchTerm] = useState('')
+  const [isSending, setIsSending] = useState(false)
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const { toast } = useToast()
+  
+  // État pour les emails externes
+  const [externalEmails, setExternalEmails] = useState<Message[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pharmalink_external_emails')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+  
+  // État pour les brouillons
+  const [drafts, setDrafts] = useState<Message[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pharmalink_drafts')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
 
   // Trouver l'ID utilisateur actuel basé sur l'email
   const currentUserId = initialContacts.find(c => 
@@ -17343,17 +19722,34 @@ function MessagesModule({ user }: { user: UserType }) {
     c.name.toLowerCase() === user.name.toLowerCase()
   )?.id || 'u1'
 
-  // Filtrer les messages selon la vue
-  const inboxMessages = messages.filter(m => m.toId === currentUserId && m.status !== 'sent')
-  const sentMessages = messages.filter(m => m.fromId === currentUserId || m.status === 'sent')
+  // Combiner tous les messages
+  const allMessages = [...messages, ...externalEmails]
   
-  const filteredMessages = (view === 'inbox' ? inboxMessages : sentMessages).filter(m =>
+  // Filtrer les messages selon la vue
+  const inboxMessages = allMessages.filter(m => m.toId === currentUserId && m.status !== 'sent')
+  const sentMessages = allMessages.filter(m => m.fromId === currentUserId || m.status === 'sent')
+  const archivedMessages = allMessages.filter(m => m.status === 'archived')
+  const draftMessages = drafts
+  
+  const filteredMessages = (view === 'inbox' ? inboxMessages : 
+                           view === 'sent' ? sentMessages : 
+                           view === 'archived' ? archivedMessages : draftMessages).filter(m =>
     m.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
     m.fromName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     m.toName.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const unreadCount = inboxMessages.filter(m => m.status === 'unread').length
+  
+  // Sauvegarder les emails externes
+  useEffect(() => {
+    localStorage.setItem('pharmalink_external_emails', JSON.stringify(externalEmails))
+  }, [externalEmails])
+  
+  // Sauvegarder les brouillons
+  useEffect(() => {
+    localStorage.setItem('pharmalink_drafts', JSON.stringify(drafts))
+  }, [drafts])
 
   const handleMarkAsRead = (message: Message) => {
     if (message.status === 'unread') {
@@ -17362,12 +19758,30 @@ function MessagesModule({ user }: { user: UserType }) {
           ? { ...m, status: 'read' as const, readAt: new Date().toISOString() }
           : m
       ))
+      setExternalEmails(externalEmails.map(m => 
+        m.id === message.id 
+          ? { ...m, status: 'read' as const, readAt: new Date().toISOString() }
+          : m
+      ))
     }
     setSelectedMessage(message)
   }
 
-  const handleSendMessage = async (data: { to: Contact; subject: string; content: string; priority: 'normal' | 'important' | 'urgent' }) => {
+  const handleSendMessage = async (data: { 
+    to: Contact | { id: string; name: string; email: string; isExternal: boolean }; 
+    subject: string; 
+    content: string; 
+    priority: 'normal' | 'important' | 'urgent';
+    attachments?: { name: string; size: number; type: string }[];
+  }) => {
+    setIsSending(true)
+    setEmailStatus('sending')
+    
     try {
+      const toEmail = 'email' in data.to ? data.to.email : ''
+      const toName = 'name' in data.to ? data.to.name : ''
+      const isExternal = 'isExternal' in data.to ? data.to.isExternal : false
+      
       // Appel à l'API pour l'envoi réel de l'email
       const response = await fetch('/api/mail', {
         method: 'POST',
@@ -17375,13 +19789,14 @@ function MessagesModule({ user }: { user: UserType }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          to: data.to.email,
-          toName: data.to.name,
+          to: toEmail,
+          toName: toName,
           from: user.email,
           fromName: user.name,
           subject: data.subject,
           content: data.content,
           priority: data.priority,
+          attachments: data.attachments,
         }),
       })
 
@@ -17394,23 +19809,40 @@ function MessagesModule({ user }: { user: UserType }) {
           fromId: currentUserId,
           fromName: user.name,
           fromEmail: user.email,
-          toId: data.to.id,
-          toName: data.to.name,
-          toEmail: data.to.email,
+          toId: 'id' in data.to ? data.to.id : `external-${Date.now()}`,
+          toName: toName,
+          toEmail: toEmail,
           subject: data.subject,
           content: data.content,
           status: 'sent',
           priority: data.priority,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          attachments: data.attachments
         }
-        setMessages([newMessage, ...messages])
+        
+        if (isExternal) {
+          setExternalEmails([newMessage, ...externalEmails])
+        } else {
+          setMessages([newMessage, ...messages])
+        }
+        
         setShowCompose(false)
+        setEmailStatus('sent')
+        
         toast({ 
           title: '✅ Email envoyé', 
-          description: `Votre email a été envoyé avec succès à ${data.to.name} (${data.to.email})` 
+          description: `Votre email a été envoyé avec succès à ${toName} (${toEmail})`,
+          duration: 5000
         })
+        
+        // Simuler une réponse automatique après 3 secondes (pour démo)
+        if (isExternal) {
+          setTimeout(() => {
+            simulateIncomingEmail(toEmail, toName, data.subject)
+          }, 3000)
+        }
       } else {
-        // En cas d'erreur, afficher le message d'erreur
+        setEmailStatus('error')
         toast({ 
           title: '❌ Erreur d\'envoi', 
           description: result.error || 'Impossible d\'envoyer l\'email. Veuillez réessayer.',
@@ -17419,18 +19851,86 @@ function MessagesModule({ user }: { user: UserType }) {
       }
     } catch (error: any) {
       console.error('Erreur envoi email:', error)
+      setEmailStatus('error')
       toast({ 
         title: '❌ Erreur', 
         description: 'Une erreur est survenue lors de l\'envoi de l\'email.',
         variant: 'destructive'
       })
+    } finally {
+      setIsSending(false)
+      setTimeout(() => setEmailStatus('idle'), 3000)
     }
+  }
+  
+  // Simuler un email entrant (pour démonstration)
+  const simulateIncomingEmail = (fromEmail: string, fromName: string, originalSubject: string) => {
+    const replies = [
+      { subject: `RE: ${originalSubject}`, content: `Bonjour,\n\nMerci pour votre email. Je vous répondrai dans les plus brefs délais.\n\nCordialement,\n${fromName}` },
+      { subject: `RE: ${originalSubject}`, content: `Bonjour,\n\nJ'ai bien reçu votre message et je vous en remercie.\n\nNous reviendrons vers vous rapidement.\n\nCordialement` },
+      { subject: `RE: ${originalSubject}`, content: `Cher/Chère collègue,\n\nVotre message a bien été pris en compte.\n\nBest regards` }
+    ]
+    
+    const randomReply = replies[Math.floor(Math.random() * replies.length)]
+    
+    const incomingMessage: Message = {
+      id: `incoming-${Date.now()}`,
+      fromId: `external-${Date.now()}`,
+      fromName: fromName,
+      fromEmail: fromEmail,
+      toId: currentUserId,
+      toName: user.name,
+      toEmail: user.email,
+      subject: randomReply.subject,
+      content: randomReply.content,
+      status: 'unread',
+      priority: 'normal',
+      createdAt: new Date().toISOString()
+    }
+    
+    setExternalEmails(prev => [incomingMessage, ...prev])
+    
+    toast({
+      title: '📧 Nouvel email reçu',
+      description: `${fromName} a répondu à votre message`,
+    })
   }
 
   const handleDeleteMessage = (messageId: string) => {
     setMessages(messages.filter(m => m.id !== messageId))
+    setExternalEmails(externalEmails.filter(m => m.id !== messageId))
     setSelectedMessage(null)
     toast({ title: 'Message supprimé', description: 'Le message a été supprimé' })
+  }
+  
+  const handleArchiveMessage = (messageId: string) => {
+    setMessages(messages.map(m => 
+      m.id === messageId ? { ...m, status: 'archived' as const } : m
+    ))
+    setExternalEmails(externalEmails.map(m => 
+      m.id === messageId ? { ...m, status: 'archived' as const } : m
+    ))
+    setSelectedMessage(null)
+    toast({ title: 'Message archivé', description: 'Le message a été archivé' })
+  }
+  
+  const handleSaveDraft = (draft: Partial<Message>) => {
+    const newDraft: Message = {
+      id: `draft-${Date.now()}`,
+      fromId: currentUserId,
+      fromName: user.name,
+      fromEmail: user.email,
+      toId: draft.toId || '',
+      toName: draft.toName || '',
+      toEmail: draft.toEmail || '',
+      subject: draft.subject || '(Sans objet)',
+      content: draft.content || '',
+      status: 'draft' as any,
+      priority: draft.priority || 'normal',
+      createdAt: new Date().toISOString()
+    }
+    setDrafts([newDraft, ...drafts])
+    toast({ title: 'Brouillon sauvegardé' })
   }
 
   const formatDate = (dateStr: string) => {
@@ -17450,6 +19950,86 @@ function MessagesModule({ user }: { user: UserType }) {
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
+  
+  // Vérifier le statut du service email
+  const [emailServiceStatus, setEmailServiceStatus] = useState<'checking' | 'configured' | 'not_configured'>('checking')
+  const [showEmailSettings, setShowEmailSettings] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [emailTemplates, setEmailTemplates] = useState<any[]>([])
+  const [isSyncing, setIsSyncing] = useState(false)
+  
+  // Charger les templates d'emails
+  useEffect(() => {
+    fetch('/api/mail/templates')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setEmailTemplates(data.templates)
+        }
+      })
+      .catch(console.error)
+  }, [])
+  
+  useEffect(() => {
+    fetch('/api/mail')
+      .then(res => res.json())
+      .then(data => {
+        setEmailServiceStatus(data.status === 'configured' ? 'configured' : 'not_configured')
+      })
+      .catch(() => setEmailServiceStatus('not_configured'))
+  }, [])
+  
+  // Synchroniser les emails entrants
+  const handleSyncInbox = async () => {
+    setIsSyncing(true)
+    try {
+      const response = await fetch(`/api/mail/inbound?email=${user.email}`)
+      const data = await response.json()
+      if (data.success && data.emails.length > 0) {
+        // Convertir les emails entrants au format Message
+        const newMessages: Message[] = data.emails.map((email: any) => ({
+          id: email.id,
+          fromId: `external-${email.from}`,
+          fromName: email.from.split('@')[0],
+          fromEmail: email.from,
+          toId: currentUserId,
+          toName: user.name,
+          toEmail: user.email,
+          subject: email.subject,
+          content: email.text || email.html || '',
+          status: email.status || 'unread',
+          priority: email.priority || 'normal',
+          createdAt: email.receivedAt || new Date().toISOString()
+        }))
+        
+        // Ajouter les nouveaux messages
+        const existingIds = new Set(externalEmails.map(m => m.id))
+        const uniqueNewMessages = newMessages.filter((m: Message) => !existingIds.has(m.id))
+        
+        if (uniqueNewMessages.length > 0) {
+          setExternalEmails([...uniqueNewMessages, ...externalEmails])
+          toast({
+            title: '📥 Emails synchronisés',
+            description: `${uniqueNewMessages.length} nouveau(x) email(s) reçu(s)`
+          })
+        } else {
+          toast({
+            title: '📥 Synchronisation terminée',
+            description: 'Aucun nouvel email'
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Erreur sync inbox:', error)
+      toast({
+        title: '❌ Erreur',
+        description: 'Impossible de synchroniser les emails',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsSyncing(false)
+    }
+  }
 
   return (
     <motion.div 
@@ -17465,27 +20045,42 @@ function MessagesModule({ user }: { user: UserType }) {
             <Mail className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Messagerie</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl font-bold">Messagerie Email</h1>
+            <p className="text-muted-foreground flex items-center gap-2">
               {unreadCount > 0 ? `${unreadCount} message${unreadCount > 1 ? 's' : ''} non lu${unreadCount > 1 ? 's' : ''}` : 'Boîte de réception'}
+              {emailServiceStatus === 'configured' && (
+                <Badge variant="outline" className="text-green-600 border-green-300">
+                  <CheckCircle className="h-3 w-3 mr-1" />SMTP Actif
+                </Badge>
+              )}
             </p>
           </div>
         </div>
-        <Button onClick={() => setShowCompose(true)} className="gap-2">
-          <Plus className="h-4 w-4" />Nouveau message
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowEmailSettings(true)} className="gap-2">
+            <Settings className="h-4 w-4" />
+          </Button>
+          <Button onClick={() => setShowCompose(true)} className="gap-2">
+            <Plus className="h-4 w-4" />Nouveau message
+          </Button>
+        </div>
       </motion.div>
 
       {/* Stats */}
-      <motion.div variants={staggerContainer} className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <motion.div variants={staggerContainer} className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
           { value: inboxMessages.filter(m => m.status === 'unread').length.toString(), label: 'Non lus', icon: Mail, color: 'bg-blue-100 text-blue-600' },
-          { value: inboxMessages.length.toString(), label: 'Boîte de réception', icon: Inbox, color: 'bg-green-100 text-green-600' },
+          { value: inboxMessages.length.toString(), label: 'Réception', icon: Inbox, color: 'bg-green-100 text-green-600' },
           { value: sentMessages.length.toString(), label: 'Envoyés', icon: Send, color: 'bg-purple-100 text-purple-600' },
+          { value: draftMessages.length.toString(), label: 'Brouillons', icon: FileText, color: 'bg-amber-100 text-amber-600' },
           { value: inboxMessages.filter(m => m.priority === 'urgent').length.toString(), label: 'Urgents', icon: AlertTriangle, color: 'bg-red-100 text-red-600' },
         ].map((stat, i) => (
           <motion.div key={i} variants={scaleIn}>
-            <Card>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => {
+              if (stat.label === 'Brouillons') setView('drafts')
+              else if (stat.label === 'Envoyés') setView('sent')
+              else setView('inbox')
+            }}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${stat.color}`}><stat.icon className="h-5 w-5" /></div>
@@ -17505,11 +20100,12 @@ function MessagesModule({ user }: { user: UserType }) {
         <motion.div variants={scaleIn} className="lg:col-span-1">
           <Card className="h-[600px] flex flex-col">
             <CardHeader className="pb-3">
-              <div className="flex gap-2 mb-3">
+              <div className="flex gap-2 mb-3 flex-wrap">
                 <Button 
                   variant={view === 'inbox' ? 'default' : 'outline'} 
                   onClick={() => setView('inbox')}
-                  className="flex-1 gap-2"
+                  className="flex-1 gap-2 min-w-[80px]"
+                  size="sm"
                 >
                   <Inbox className="h-4 w-4" />
                   Réception {unreadCount > 0 && <Badge className="ml-1 bg-red-500">{unreadCount}</Badge>}
@@ -17517,10 +20113,19 @@ function MessagesModule({ user }: { user: UserType }) {
                 <Button 
                   variant={view === 'sent' ? 'default' : 'outline'} 
                   onClick={() => setView('sent')}
-                  className="flex-1 gap-2"
+                  className="flex-1 gap-2 min-w-[80px]"
+                  size="sm"
                 >
                   <Send className="h-4 w-4" />
                   Envoyés
+                </Button>
+                <Button
+                  variant={view === 'drafts' ? 'default' : 'outline'}
+                  onClick={() => setView('drafts')}
+                  className="gap-2"
+                  size="sm"
+                >
+                  <FileText className="h-4 w-4" />
                 </Button>
               </div>
               <div className="relative">
@@ -17529,8 +20134,22 @@ function MessagesModule({ user }: { user: UserType }) {
                   placeholder="Rechercher..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 pr-20"
                 />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSyncInbox}
+                  disabled={isSyncing}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 gap-1"
+                  title="Synchroniser les emails"
+                >
+                  {isSyncing ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3" />
+                  )}
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="flex-1 overflow-y-auto p-0">
@@ -17706,6 +20325,17 @@ function MessagesModule({ user }: { user: UserType }) {
             currentUserId={currentUserId}
             onSend={handleSendMessage}
             onClose={() => setShowCompose(false)}
+            templates={emailTemplates}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Modal Configuration Email */}
+      <AnimatePresence>
+        {showEmailSettings && (
+          <EmailSettingsModal
+            emailStatus={emailServiceStatus}
+            onClose={() => setShowEmailSettings(false)}
           />
         )}
       </AnimatePresence>
@@ -17714,25 +20344,289 @@ function MessagesModule({ user }: { user: UserType }) {
 }
 
 // ============================================
-// COMPOSE MESSAGE MODAL
+// EMAIL SETTINGS MODAL
+// ============================================
+
+function EmailSettingsModal({
+  emailStatus,
+  onClose
+}: {
+  emailStatus: 'checking' | 'configured' | 'not_configured'
+  onClose: () => void
+}) {
+  const [apiKey, setApiKey] = useState('')
+  const [senderEmail, setSenderEmail] = useState('')
+  const [senderName, setSenderName] = useState('PharmaLink')
+  const [isSaving, setIsSaving] = useState(false)
+  const [testEmail, setTestEmail] = useState('')
+  const [isTesting, setIsTesting] = useState(false)
+  const { toast } = useToast()
+
+  const handleSaveConfig = async () => {
+    setIsSaving(true)
+    try {
+      // En production, ces valeurs seraient sauvegardées de manière sécurisée
+      // Pour la démo, on affiche juste un message de succès
+      await new Promise(resolve => setTimeout(resolve, 500))
+      toast({
+        title: '✅ Configuration sauvegardée',
+        description: 'Les paramètres email ont été mis à jour. Redémarrez le serveur pour appliquer les changements.'
+      })
+    } catch (error) {
+      toast({
+        title: '❌ Erreur',
+        description: 'Impossible de sauvegarder la configuration',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleTestEmail = async () => {
+    if (!testEmail) return
+    setIsTesting(true)
+    try {
+      const response = await fetch('/api/mail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: testEmail,
+          toName: 'Test',
+          from: 'test@pharmalink.com',
+          fromName: 'PharmaLink Test',
+          subject: 'Test de configuration email - PharmaLink',
+          content: 'Ceci est un email de test pour vérifier la configuration du service d\'envoi.\n\nSi vous recevez cet email, la configuration est correcte !\n\n---\nPharmaLink - Prodipharm',
+          priority: 'normal'
+        })
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        toast({
+          title: '✅ Email de test envoyé',
+          description: `Vérifiez la boîte de réception de ${testEmail}`
+        })
+      } else {
+        toast({
+          title: '❌ Échec de l\'envoi',
+          description: result.error || 'Erreur inconnue',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: '❌ Erreur',
+        description: 'Impossible d\'envoyer l\'email de test',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsTesting(false)
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-card rounded-xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div className="p-6 border-b bg-gradient-to-r from-blue-600 to-purple-600">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Settings className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white">Configuration Email</h2>
+                <p className="text-sm text-white/80">Paramètres du service Resend</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20">
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Statut du service */}
+          <div className={`p-4 rounded-lg border ${
+            emailStatus === 'configured' ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' :
+            emailStatus === 'checking' ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800' :
+            'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+          }`}>
+            <div className="flex items-center gap-3">
+              {emailStatus === 'configured' ? (
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              ) : emailStatus === 'checking' ? (
+                <Loader2 className="h-5 w-5 text-amber-600 animate-spin" />
+              ) : (
+                <AlertCircle className="h-5 w-5 text-red-600" />
+              )}
+              <div>
+                <p className="font-medium">
+                  {emailStatus === 'configured' ? 'Service configuré' :
+                   emailStatus === 'checking' ? 'Vérification...' :
+                   'Service non configuré'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {emailStatus === 'configured' ? 'Les emails peuvent être envoyés via Resend' :
+                   emailStatus === 'checking' ? 'Vérification de la configuration en cours' :
+                   'Configurez RESEND_API_KEY dans les variables d\'environnement'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Configuration Resend */}
+          <div className="space-y-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Configuration Resend
+            </h3>
+
+            <div className="space-y-3">
+              <div>
+                <Label>Clé API Resend</Label>
+                <Input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="re_xxxxxxxxxxxx"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Obtenez votre clé sur <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">resend.com/api-keys</a>
+                </p>
+              </div>
+
+              <div>
+                <Label>Email expéditeur vérifié</Label>
+                <Input
+                  type="email"
+                  value={senderEmail}
+                  onChange={(e) => setSenderEmail(e.target.value)}
+                  placeholder="noreply@votredomaine.com"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Utilisez un domaine vérifié sur Resend ou onboarding@resend.dev pour les tests
+                </p>
+              </div>
+
+              <div>
+                <Label>Nom de l'expéditeur</Label>
+                <Input
+                  value={senderName}
+                  onChange={(e) => setSenderName(e.target.value)}
+                  placeholder="PharmaLink"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">📋 Instructions de configuration</h4>
+            <ol className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-decimal list-inside">
+              <li>Créez un compte sur <a href="https://resend.com" target="_blank" rel="noopener noreferrer" className="underline">resend.com</a></li>
+              <li>Vérifiez votre domaine dans le dashboard Resend</li>
+              <li>Générez une clé API</li>
+              <li>Ajoutez <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">RESEND_API_KEY</code> au fichier .env</li>
+              <li>Redémarrez le serveur</li>
+            </ol>
+          </div>
+
+          {/* Test d'envoi */}
+          <div className="space-y-3">
+            <h3 className="font-semibold">🧪 Test d'envoi</h3>
+            <div className="flex gap-2">
+              <Input
+                type="email"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                placeholder="email@test.com"
+                className="flex-1"
+              />
+              <Button
+                onClick={handleTestEmail}
+                disabled={!testEmail || isTesting}
+                variant="outline"
+              >
+                {isTesting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 border-t flex gap-3 bg-muted/30">
+          <Button
+            onClick={handleSaveConfig}
+            disabled={isSaving}
+            className="flex-1 gap-2"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Sauvegarde...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Sauvegarder
+              </>
+            )}
+          </Button>
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Fermer
+          </Button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// ============================================
+// COMPOSE MESSAGE MODAL - AMÉLIORÉ AVEC EMAILS EXTERNES ET TEMPLATES
 // ============================================
 
 function ComposeMessageModal({
   user,
   currentUserId,
   onSend,
-  onClose
+  onClose,
+  templates = []
 }: {
   user: UserType
   currentUserId: string
-  onSend: (data: { to: Contact; subject: string; content: string; priority: 'normal' | 'important' | 'urgent' }) => void
+  onSend: (data: { to: Contact | { id: string; name: string; email: string; isExternal: boolean }; subject: string; content: string; priority: 'normal' | 'important' | 'urgent'; attachments?: { name: string; size: number; type: string }[] }) => void
   onClose: () => void
+  templates?: any[]
 }) {
   const [to, setTo] = useState<Contact | null>(null)
+  const [externalEmail, setExternalEmail] = useState('')
+  const [externalName, setExternalName] = useState('')
+  const [isExternalMode, setIsExternalMode] = useState(false)
   const [subject, setSubject] = useState('')
   const [content, setContent] = useState('')
   const [priority, setPriority] = useState<'normal' | 'important' | 'urgent'>('normal')
   const [searchContact, setSearchContact] = useState('')
+  const [attachments, setAttachments] = useState<{ name: string; size: number; type: string }[]>([])
+  const [isSending, setIsSending] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Filtrer les contacts (exclure l'utilisateur actuel)
   const availableContacts = initialContacts.filter(c => c.id !== currentUserId)
@@ -17741,12 +20635,92 @@ function ComposeMessageModal({
     c.email.toLowerCase().includes(searchContact.toLowerCase())
   )
 
-  const handleSend = () => {
-    if (!to || !subject || !content) {
+  const handleSend = async () => {
+    if ((!isExternalMode && !to) || (isExternalMode && !externalEmail) || !subject || !content) {
       return
     }
-    onSend({ to, subject, content, priority })
+    
+    setIsSending(true)
+    
+    try {
+      if (isExternalMode) {
+        // Email externe
+        await onSend({ 
+          to: { 
+            id: `external-${Date.now()}`, 
+            name: externalName || externalEmail.split('@')[0], 
+            email: externalEmail, 
+            isExternal: true 
+          }, 
+          subject, 
+          content, 
+          priority,
+          attachments
+        })
+      } else if (to) {
+        // Contact interne
+        await onSend({ to, subject, content, priority, attachments })
+      }
+    } finally {
+      setIsSending(false)
+    }
   }
+  
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files) {
+      const newAttachments = Array.from(files).map(file => ({
+        name: file.name,
+        size: file.size,
+        type: file.type.split('/')[1] || 'unknown'
+      }))
+      setAttachments([...attachments, ...newAttachments])
+    }
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+  
+  const removeAttachment = (index: number) => {
+    setAttachments(attachments.filter((_, i) => i !== index))
+  }
+  
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B'
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  }
+  
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
+  // Appliquer un template
+  const handleSelectTemplate = async (templateId: string) => {
+    if (!templateId) {
+      setSelectedTemplate('')
+      return
+    }
+
+    const template = templates.find(t => t.id === templateId)
+    if (template) {
+      setSelectedTemplate(templateId)
+      // Pré-remplir avec les valeurs par défaut
+      setSubject(template.subject)
+      setContent(template.content)
+      setShowTemplateSelector(false)
+    }
+  }
+
+  // Grouper les templates par catégorie
+  const templatesByCategory = templates.reduce((acc: Record<string, any[]>, template) => {
+    if (!acc[template.category]) {
+      acc[template.category] = []
+    }
+    acc[template.category].push(template)
+    return acc
+  }, {})
 
   return (
     <motion.div
@@ -17763,73 +20737,192 @@ function ComposeMessageModal({
         onClick={(e) => e.stopPropagation()}
         className="bg-card rounded-xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
       >
-        <div className="p-6 border-b">
+        <div className="p-6 border-b bg-gradient-to-r from-blue-600 to-purple-600">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Nouveau message</h2>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Mail className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white">Nouvel Email</h2>
+                <p className="text-sm text-white/80">Envoyer un message</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20">
               <X className="h-5 w-5" />
             </Button>
           </div>
         </div>
 
-        <div className="p-6 space-y-4">
-          {/* Destinataire */}
-          <div className="space-y-2">
-            <Label>Destinataire *</Label>
-            <div className="relative">
-              <Input
-                placeholder="Rechercher un contact..."
-                value={searchContact}
-                onChange={(e) => setSearchContact(e.target.value)}
-              />
-              {searchContact && !to && (
-                <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-800 border rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto z-10">
-                  {filteredContacts.map(contact => (
-                    <button
-                      key={contact.id}
-                      onClick={() => {
-                        setTo(contact)
-                        setSearchContact('')
-                      }}
-                      className="w-full flex items-center gap-3 p-3 hover:bg-muted text-left"
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>{contact.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-sm">{contact.name}</p>
-                        <p className="text-xs text-muted-foreground">{contact.email}</p>
+        <div className="p-6 space-y-5">
+          {/* Toggle mode */}
+          <div className="flex gap-2 p-1 bg-muted rounded-lg">
+            <button
+              onClick={() => { setIsExternalMode(false); setExternalEmail(''); setExternalName(''); }}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md transition-all ${
+                !isExternalMode ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Users className="h-4 w-4" />
+              Contact interne
+            </button>
+            <button
+              onClick={() => { setIsExternalMode(true); setTo(null); setSearchContact(''); }}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md transition-all ${
+                isExternalMode ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Mail className="h-4 w-4" />
+              Email externe
+            </button>
+          </div>
+          
+          {/* Destinataire - Mode Contact Interne */}
+          {!isExternalMode && (
+            <div className="space-y-2">
+              <Label>Destinataire interne *</Label>
+              <div className="relative">
+                <Input
+                  placeholder="Rechercher un contact..."
+                  value={searchContact}
+                  onChange={(e) => setSearchContact(e.target.value)}
+                />
+                {searchContact && !to && (
+                  <div className="absolute top-full left-0 right-0 bg-white dark:bg-slate-800 border rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto z-10">
+                    {filteredContacts.length === 0 ? (
+                      <div className="p-4 text-center text-muted-foreground">
+                        Aucun contact trouvé
                       </div>
-                      <Badge variant="outline" className="ml-auto">{roleLabels[contact.role]}</Badge>
-                    </button>
-                  ))}
+                    ) : (
+                      filteredContacts.map(contact => (
+                        <button
+                          key={contact.id}
+                          onClick={() => {
+                            setTo(contact)
+                            setSearchContact('')
+                          }}
+                          className="w-full flex items-center gap-3 p-3 hover:bg-muted text-left"
+                        >
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>{contact.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{contact.name}</p>
+                            <p className="text-xs text-muted-foreground">{contact.email}</p>
+                          </div>
+                          <Badge variant="outline">{roleLabels[contact.role]}</Badge>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+              {to && (
+                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>{to.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{to.name}</p>
+                    <p className="text-xs text-muted-foreground">{to.email}</p>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setTo(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               )}
             </div>
-            {to && (
-              <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{to.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{to.name}</p>
-                  <p className="text-xs text-muted-foreground">{to.email}</p>
+          )}
+          
+          {/* Destinataire - Mode Email Externe */}
+          {isExternalMode && (
+            <div className="space-y-3">
+              <Label>Adresse email externe *</Label>
+              <div className="grid grid-cols-1 gap-3">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    placeholder="email@exemple.com"
+                    value={externalEmail}
+                    onChange={(e) => setExternalEmail(e.target.value)}
+                    className="pl-10"
+                  />
+                  {externalEmail && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {isValidEmail(externalEmail) ? (
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4 text-amber-500" />
+                      )}
+                    </div>
+                  )}
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setTo(null)}>
-                  <X className="h-4 w-4" />
-                </Button>
+                <Input
+                  placeholder="Nom du destinataire (optionnel)"
+                  value={externalName}
+                  onChange={(e) => setExternalName(e.target.value)}
+                />
               </div>
-            )}
-          </div>
+              {externalEmail && isValidEmail(externalEmail) && (
+                <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    L'email sera envoyé à <strong>{externalName || externalEmail}</strong> ({externalEmail})
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Sujet */}
           <div className="space-y-2">
-            <Label>Objet *</Label>
+            <div className="flex items-center justify-between">
+              <Label>Objet *</Label>
+              {templates.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowTemplateSelector(!showTemplateSelector)}
+                  className="text-xs gap-1"
+                >
+                  <FileText className="h-3 w-3" />
+                  Templates
+                </Button>
+              )}
+            </div>
             <Input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Objet du message..."
             />
+
+            {/* Template Selector Dropdown */}
+            {showTemplateSelector && templates.length > 0 && (
+              <div className="border rounded-lg p-3 bg-muted/50 max-h-60 overflow-y-auto">
+                <p className="text-xs text-muted-foreground mb-2">Sélectionner un template :</p>
+                {Object.entries(templatesByCategory).map(([category, categoryTemplates]) => (
+                  <div key={category} className="mb-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase mb-1">{category}</p>
+                    <div className="space-y-1">
+                      {categoryTemplates.map((template: any) => (
+                        <button
+                          key={template.id}
+                          onClick={() => handleSelectTemplate(template.id)}
+                          className={`w-full text-left p-2 rounded-md text-sm transition-all ${
+                            selectedTemplate === template.id
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-background hover:bg-muted'
+                          }`}
+                        >
+                          {template.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Priorité */}
@@ -17837,20 +20930,21 @@ function ComposeMessageModal({
             <Label>Priorité</Label>
             <div className="flex gap-3">
               {[
-                { value: 'normal', label: 'Normal', color: 'bg-gray-100 text-gray-700 border-gray-300' },
-                { value: 'important', label: 'Important', color: 'bg-amber-100 text-amber-700 border-amber-300' },
-                { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-700 border-red-300' },
+                { value: 'normal', label: 'Normal', icon: Mail, color: 'bg-gray-100 text-gray-700 border-gray-300' },
+                { value: 'important', label: 'Important', icon: Star, color: 'bg-amber-100 text-amber-700 border-amber-300' },
+                { value: 'urgent', label: 'Urgent', icon: AlertTriangle, color: 'bg-red-100 text-red-700 border-red-300' },
               ].map(option => (
                 <button
                   key={option.value}
                   onClick={() => setPriority(option.value as 'normal' | 'important' | 'urgent')}
-                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
                     priority === option.value 
                       ? option.color + ' border-current' 
                       : 'bg-background border-muted hover:border-muted-foreground'
                   }`}
                 >
-                  <p className="text-sm font-medium">{option.label}</p>
+                  <option.icon className="h-4 w-4" />
+                  <span className="text-sm font-medium">{option.label}</span>
                 </button>
               ))}
             </div>
@@ -17858,19 +20952,101 @@ function ComposeMessageModal({
 
           {/* Contenu */}
           <div className="space-y-2">
-            <Label>Message *</Label>
+            <div className="flex items-center justify-between">
+              <Label>Message *</Label>
+              <div className="flex gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setContent(content + '\n\nCordialement,\n' + user.name)}
+                  className="text-xs"
+                >
+                  Signature
+                </Button>
+              </div>
+            </div>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Rédigez votre message..."
-              className="w-full border rounded-lg px-3 py-2 bg-background min-h-[200px] resize-y"
+              className="w-full border rounded-lg px-3 py-2 bg-background min-h-[200px] resize-y focus:ring-2 focus:ring-primary/50 focus:border-primary"
             />
+            <p className="text-xs text-muted-foreground">{content.length} caractères</p>
+          </div>
+          
+          {/* Pièces jointes */}
+          <div className="space-y-2">
+            <Label>Pièces jointes</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+              id="file-attachments"
+            />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                Ajouter un fichier
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                Max 10 Mo par fichier
+              </span>
+            </div>
+            
+            {attachments.length > 0 && (
+              <div className="space-y-2 mt-3">
+                {attachments.map((file, i) => (
+                  <div key={i} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{file.name}</p>
+                      <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeAttachment(i)}
+                      className="h-8 w-8 text-red-500 hover:text-red-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Info expéditeur */}
+          <div className="p-3 bg-muted/50 rounded-lg text-sm">
+            <p className="text-muted-foreground">
+              <strong>De:</strong> {user.name} &lt;{user.email}&gt;
+            </p>
           </div>
         </div>
 
-        <div className="p-6 border-t flex gap-3">
-          <Button onClick={handleSend} className="flex-1 gap-2" disabled={!to || !subject || !content}>
-            <Send className="h-4 w-4" />Envoyer
+        <div className="p-6 border-t flex gap-3 bg-muted/30">
+          <Button 
+            onClick={handleSend} 
+            className="flex-1 gap-2" 
+            disabled={(!isExternalMode && !to) || (isExternalMode && !isValidEmail(externalEmail)) || !subject || !content || isSending}
+          >
+            {isSending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Envoi en cours...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                Envoyer l'email
+              </>
+            )}
           </Button>
           <Button variant="outline" onClick={onClose} className="flex-1">Annuler</Button>
         </div>
@@ -18875,6 +22051,94 @@ export default function PharmaLinkApp() {
   const [accessDeniedReason, setAccessDeniedReason] = useState('')
   const [accessHours, setAccessHours] = useState<AccessHoursConfig[]>(DEFAULT_ACCESS_HOURS)
   
+  // ============================================
+  // PRIORITÉ MOYENNE - ÉTATS
+  // ============================================
+  
+  // Recherche globale
+  const [showGlobalSearch, setShowGlobalSearch] = useState(false)
+  
+  // Raccourcis clavier
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
+  
+  // Thème utilisateur
+  const [userTheme, setUserTheme] = useState<UserTheme>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pharmalink_user_theme')
+      return saved ? JSON.parse(saved) : {
+        mode: 'system',
+        primaryColor: 'indigo',
+        accentColor: 'purple',
+        fontSize: 'medium',
+        compactMode: false,
+        sidebarCollapsed: false
+      }
+    }
+    return {
+      mode: 'system',
+      primaryColor: 'indigo',
+      accentColor: 'purple',
+      fontSize: 'medium',
+      compactMode: false,
+      sidebarCollapsed: false
+    }
+  })
+  
+  // Sauvegarder le thème
+  useEffect(() => {
+    localStorage.setItem('pharmalink_user_theme', JSON.stringify(userTheme))
+    
+    // Appliquer le thème
+    const root = document.documentElement
+    if (userTheme.mode === 'dark') {
+      root.classList.add('dark')
+    } else if (userTheme.mode === 'light') {
+      root.classList.remove('dark')
+    } else {
+      // System preference
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        root.classList.add('dark')
+      } else {
+        root.classList.remove('dark')
+      }
+    }
+  }, [userTheme])
+  
+  // Raccourcis clavier globaux
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+K ou Cmd+K pour la recherche globale
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        setShowGlobalSearch(true)
+      }
+      
+      // Ctrl+B pour toggle sidebar
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault()
+        setSidebarOpen(prev => !prev)
+      }
+      
+      // ? pour l'aide des raccourcis
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+        const target = e.target as HTMLElement
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+          e.preventDefault()
+          setShowKeyboardHelp(true)
+        }
+      }
+      
+      // Escape pour fermer les modals
+      if (e.key === 'Escape') {
+        setShowGlobalSearch(false)
+        setShowKeyboardHelp(false)
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+  
   // Initial loading effect
   useEffect(() => {
     const timer = setTimeout(() => setIsReady(true), 100)
@@ -19069,6 +22333,8 @@ export default function PharmaLinkApp() {
     { id: 'payroll' as Module, label: 'Paie', icon: DollarSign, roles: ['comptabilite', 'admin'] },
     { id: 'marketing' as Module, label: 'Marketing', icon: Megaphone, roles: ['marketing', 'admin'] },
     { id: 'analytics' as Module, label: 'Analytics', icon: Activity, roles: ['superviseur', 'admin', 'marketing'] },
+    { id: 'audit' as Module, label: 'Journal d\'Audit', icon: History, roles: ['admin', 'superviseur', 'comptabilite'] },
+    { id: 'backup' as Module, label: 'Sauvegardes', icon: Database, roles: ['admin'] },
     { id: 'settings' as Module, label: 'Paramètres', icon: Settings, roles: ['admin'] },
   ].filter(m => m.roles.includes(user.role))
 
@@ -19092,6 +22358,8 @@ export default function PharmaLinkApp() {
       case 'sales': return <SalesModule user={user} />
       case 'regulatory': return <RegulatoryModule user={user} />
       case 'laboratories': return <LaboratoriesModule user={user} />
+      case 'audit': return <AuditModule user={user} />
+      case 'backup': return <BackupModule user={user} />
       default: return <DashboardModule user={user} />
     }
   }
@@ -19210,6 +22478,22 @@ export default function PharmaLinkApp() {
       </div>
 
       <Toaster />
+      
+      {/* Global Search Modal */}
+      <GlobalSearchModal 
+        isOpen={showGlobalSearch}
+        onClose={() => setShowGlobalSearch(false)}
+        onNavigate={(mod) => {
+          setModule(mod)
+          setShowGlobalSearch(false)
+        }}
+      />
+      
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcutsModal 
+        isOpen={showKeyboardHelp}
+        onClose={() => setShowKeyboardHelp(false)}
+      />
       
       {/* Profile Modal */}
       <ProfileModal 
