@@ -19995,8 +19995,11 @@ function MessagesModule({ user }: { user: UserType }) {
     setIsSyncing(true)
     try {
       const response = await fetch(`/api/mail/inbound?email=${user.email}`)
+      if (!response.ok) {
+        throw new Error('Failed to sync inbox')
+      }
       const data = await response.json()
-      if (data.success && data.emails.length > 0) {
+      if (data.success && data.emails && data.emails.length > 0) {
         // Convertir les emails entrants au format Message
         const newMessages: Message[] = data.emails.map((email: any) => ({
           id: email.id,
@@ -20029,6 +20032,11 @@ function MessagesModule({ user }: { user: UserType }) {
             description: 'Aucun nouvel email'
           })
         }
+      } else {
+        toast({
+          title: '📥 Synchronisation terminée',
+          description: 'Aucun nouvel email'
+        })
       }
     } catch (error) {
       console.error('Erreur sync inbox:', error)
@@ -20412,6 +20420,10 @@ function EmailSettingsModal({
         })
       })
 
+      if (!response.ok) {
+        throw new Error('Failed to send test email')
+      }
+
       const result = await response.json()
       if (result.success) {
         toast({
@@ -20709,7 +20721,7 @@ function ComposeMessageModal({
 
   // Appliquer un template
   const handleSelectTemplate = async (templateId: string) => {
-    if (!templateId) {
+    if (!templateId || !templates || templates.length === 0) {
       setSelectedTemplate('')
       return
     }
@@ -20725,7 +20737,7 @@ function ComposeMessageModal({
   }
 
   // Grouper les templates par catégorie
-  const templatesByCategory = templates.reduce((acc: Record<string, any[]>, template) => {
+  const templatesByCategory = (templates || []).reduce((acc: Record<string, any[]>, template) => {
     if (!acc[template.category]) {
       acc[template.category] = []
     }
