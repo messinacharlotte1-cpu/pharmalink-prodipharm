@@ -22166,16 +22166,25 @@ export default function PharmaLinkApp() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsReady(true)
-      // Hide the initial loader from layout
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [])
+  
+  // Hide initial loader when hydrated
+  useEffect(() => {
+    if (isHydrated) {
       const loader = document.getElementById('initial-loader')
       if (loader) {
         loader.style.opacity = '0'
         loader.style.transition = 'opacity 0.3s'
-        setTimeout(() => { loader.style.display = 'none' }, 300)
+        setTimeout(() => { 
+          if (loader && loader.parentNode) {
+            loader.style.display = 'none'
+          }
+        }, 300)
       }
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [])
+    }
+  }, [isHydrated])
   
   // Fonction de déconnexion (déclarée avant les useEffect qui l'utilisent)
   const logout = useCallback(() => {
@@ -22313,8 +22322,13 @@ export default function PharmaLinkApp() {
   }
 
   // Afficher un loader pendant l'hydratation pour éviter le flash
-  if (!isHydrated || !isReady) {
-    return <LoadingScreen />
+  // Le loader initial est géré par layout.tsx, ici on attend juste l'hydratation
+  if (!isHydrated) {
+    return null
+  }
+  
+  if (!isReady) {
+    return null
   }
 
   if (!user) return <LoginScreen onLogin={setUser} />

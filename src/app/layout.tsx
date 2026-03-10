@@ -47,19 +47,6 @@ export default function RootLayout({
       >
         <div dangerouslySetInnerHTML={{ __html: loadingHtml }} />
         {children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Remove loader once React hydrates
-              window.addEventListener('load', function() {
-                var loader = document.getElementById('initial-loader');
-                if (loader) {
-                  setTimeout(function() { loader.style.display = 'none'; }, 100);
-                }
-              });
-            `
-          }}
-        />
       </body>
     </html>
   );
