@@ -22051,15 +22051,11 @@ function ClientPortal({ account, onLogout, onUpdateAvatar }: { account: ClientAc
 // ============================================
 
 export default function PharmaLinkApp() {
-  // Loading state for initial render
-  const [isReady, setIsReady] = useState(false)
-  
   // Fix hydration: toujours initialiser à null, puis charger depuis localStorage dans useEffect
   const [user, setUser] = useState<UserType | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [module, setModule] = useState<Module>('dashboard')
   const [showProfileModal, setShowProfileModal] = useState(false)
-  const [isHydrated, setIsHydrated] = useState(false)
   const [globalLeaves, setGlobalLeaves] = useState<Leave[]>(initialLeaves)
   
   // Protection PIN pour "Mon espace"
@@ -22162,30 +22158,6 @@ export default function PharmaLinkApp() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
   
-  // Initial loading effect
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsReady(true)
-    }, 50)
-    return () => clearTimeout(timer)
-  }, [])
-  
-  // Hide initial loader when hydrated
-  useEffect(() => {
-    if (isHydrated) {
-      const loader = document.getElementById('initial-loader')
-      if (loader) {
-        loader.style.opacity = '0'
-        loader.style.transition = 'opacity 0.3s'
-        setTimeout(() => { 
-          if (loader && loader.parentNode) {
-            loader.style.display = 'none'
-          }
-        }, 300)
-      }
-    }
-  }, [isHydrated])
-  
   // Fonction de déconnexion (déclarée avant les useEffect qui l'utilisent)
   const logout = useCallback(() => {
     localStorage.removeItem('pharmalink_user')
@@ -22209,7 +22181,7 @@ export default function PharmaLinkApp() {
   
   // Vérifier l'accès horaire périodiquement
   useEffect(() => {
-    if (!user || !isHydrated) return
+    if (!user) return
     
     const checkAccess = () => {
       const result = checkUserAccess(user.role, user.country || 'Cameroun', accessHours)
@@ -22232,38 +22204,34 @@ export default function PharmaLinkApp() {
     const interval = setInterval(checkAccess, 60000)
     
     return () => clearInterval(interval)
-  }, [user, isHydrated, accessHours])
+  }, [user, accessHours])
 
   // Ajouter une nouvelle demande de congé
   const handleAddLeave = (leave: Leave) => {
     setGlobalLeaves([leave, ...globalLeaves])
   }
 
-  // Charger l'utilisateur depuis localStorage après l'hydratation
+  // Charger l'utilisateur depuis localStorage au montage
   useEffect(() => {
-    // Marquer comme hydraté et charger l'utilisateur en une seule opération
     const savedUser = localStorage.getItem('pharmalink_user')
     if (savedUser) {
       try {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Nécessaire pour charger l'état initial depuis localStorage après hydratation
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Nécessaire pour charger l'état initial depuis localStorage
         setUser(JSON.parse(savedUser))
       } catch {
         localStorage.removeItem('pharmalink_user')
       }
     }
-    setIsHydrated(true)
   }, [])
 
   // Sauvegarder l'utilisateur dans localStorage à chaque changement
   useEffect(() => {
-    if (isHydrated) {
-      if (user) {
-        localStorage.setItem('pharmalink_user', JSON.stringify(user))
-      } else {
-        localStorage.removeItem('pharmalink_user')
-      }
+    if (user) {
+      localStorage.setItem('pharmalink_user', JSON.stringify(user))
+    } else {
+      localStorage.removeItem('pharmalink_user')
     }
-  }, [user, isHydrated])
+  }, [user])
 
   const handleUpdateProfile = (updatedUser: UserType) => {
     setUser(updatedUser)
@@ -22321,15 +22289,9 @@ export default function PharmaLinkApp() {
     }
   }
 
-  // Afficher un loader pendant l'hydratation pour éviter le flash
-  // Le loader initial est géré par layout.tsx, ici on attend juste l'hydratation
-  if (!isHydrated) {
-    return null
-  }
-  
-  if (!isReady) {
-    return null
-  }
+  // Le loader initial est géré par layout.tsx
+  // Une fois React hydraté, le script dans layout masque le loader
+  // On peut afficher directement le contenu
 
   if (!user) return <LoginScreen onLogin={setUser} />
 
