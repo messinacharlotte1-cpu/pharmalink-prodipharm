@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Building2, Lock, Eye, EyeOff, Loader2, ArrowRight, MapPin, Users, FileText, DollarSign, Megaphone, BarChart3, LogOut, Bell, Settings, Search, Calendar, TrendingUp, Target, Globe, Activity, User, ChevronRight, CheckCircle, Clock, XCircle, Upload, Download, Filter, Plus, Edit, Trash2, Eye as ViewIcon, Phone, Mail, MapPinned, Car, Home, Coffee, Plane, Send, MessageSquare, FileSpreadsheet, PieChart, LineChart, BarChart, ArrowUpRight, ArrowDownRight, AlertTriangle, Check, X, Camera, Image as ImageIcon, Package, ShoppingCart, TrendingDown, RefreshCw, MoreVertical, ExternalLink, Save, UserPlus, Stethoscope, Printer, Briefcase, Inbox, Reply, Star, CreditCard, ClipboardList, CheckSquare, ClipboardCheck, Play, Truck, Receipt, Shield, History, Database, Key, Smartphone, FileKey, Fingerprint, Archive, RotateCcw, Zap, AlertCircle, Info, BellRing, ScrollText, FileArchive
+  Building2, Lock, Eye, EyeOff, Loader2, ArrowRight, MapPin, Users, FileText, DollarSign, Megaphone, BarChart3, LogOut, Bell, Settings, Search, Calendar, TrendingUp, Target, Globe, Activity, User, ChevronRight, CheckCircle, Clock, XCircle, Upload, Download, Filter, Plus, Edit, Trash2, Eye as ViewIcon, Phone, Mail, MapPinned, Car, Home, Coffee, Plane, Send, MessageSquare, FileSpreadsheet, PieChart, LineChart, BarChart, ArrowUpRight, ArrowDownRight, AlertTriangle, Check, X, Camera, Image as ImageIcon, Package, ShoppingCart, TrendingDown, RefreshCw, MoreVertical, ExternalLink, Save, UserPlus, Stethoscope, Printer, Briefcase, Inbox, Reply, Star, CreditCard, ClipboardList, CheckSquare, ClipboardCheck, Play, Truck, Receipt, Shield, History, Database, Key, Smartphone, FileKey, Fingerprint, Archive, RotateCcw, Zap, AlertCircle, Info, BellRing, ScrollText, FileArchive, GraduationCap
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator'
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, BarChart as RechartsBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, RadialBarChart, RadialBar, AreaChart, Area } from 'recharts'
 import VideoCallModal from '@/components/VideoCallModal'
 import TeamsModule from '@/components/TeamsModule'
+import TrainingModule from '@/components/TrainingModule'
 
 // Loading Screen Component - Displayed while JS is evaluating
 function LoadingScreen() {
@@ -156,7 +157,7 @@ function AnimatedProgressBar({ percent, delay = 0 }: { percent: number; delay?: 
 // ============================================
 
 type UserRole = 'dm' | 'superviseur' | 'comptabilite' | 'marketing' | 'admin' | 'fournisseur' | 'client'
-type Module = 'dashboard' | 'geolocation' | 'crm' | 'accounting' | 'marketing' | 'analytics' | 'settings' | 'hcp' | 'planning' | 'budget' | 'reports' | 'rh' | 'payroll' | 'my-space' | 'messages' | 'stocks' | 'sales' | 'regulatory' | 'laboratories' | 'audit' | 'backup' | 'teams'
+type Module = 'dashboard' | 'geolocation' | 'crm' | 'accounting' | 'marketing' | 'analytics' | 'settings' | 'hcp' | 'planning' | 'budget' | 'reports' | 'rh' | 'payroll' | 'my-space' | 'messages' | 'stocks' | 'sales' | 'regulatory' | 'laboratories' | 'audit' | 'backup' | 'teams' | 'training'
 
 // ============================================
 // AUDIT LOG TYPES
@@ -20605,6 +20606,7 @@ export default function PharmaLinkApp() {
     { id: 'my-space' as Module, label: 'Mon espace', icon: User, roles: ['dm'] },
     { id: 'messages' as Module, label: 'Messagerie', icon: Mail, roles: ['dm', 'superviseur', 'comptabilite', 'marketing', 'admin'] },
     { id: 'teams' as Module, label: 'Teams', icon: Users, roles: ['dm', 'superviseur', 'comptabilite', 'marketing', 'admin'] },
+    { id: 'training' as Module, label: 'Formation', icon: GraduationCap, roles: ['dm', 'superviseur', 'comptabilite', 'marketing', 'admin'] },
     { id: 'stocks' as Module, label: 'Stocks & Produits', icon: Package, roles: ['superviseur', 'comptabilite', 'admin'] },
     { id: 'sales' as Module, label: 'Ventes', icon: ShoppingCart, roles: ['admin', 'comptabilite', 'superviseur'] },
     { id: 'regulatory' as Module, label: 'Affaires Réglementaires', icon: FileText, roles: ['admin', 'superviseur'] },
@@ -20639,6 +20641,7 @@ export default function PharmaLinkApp() {
       case 'my-space': return <EmployeePortalModule user={user} globalLeaves={globalLeaves} onAddLeave={handleAddLeave} />
       case 'messages': return <MessagesModule user={user} />
       case 'teams': return <TeamsModule user={user} />
+      case 'training': return <TrainingModule user={user} />
       case 'marketing': return <MarketingModule />
       case 'analytics': return <AnalyticsModule />
       case 'settings': return <SettingsModule />
