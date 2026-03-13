@@ -15,6 +15,8 @@ import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/hooks/use-toast'
 import { Separator } from '@/components/ui/separator'
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, BarChart as RechartsBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, RadialBarChart, RadialBar, AreaChart, Area } from 'recharts'
+import VideoCallModal from '@/components/VideoCallModal'
+import TeamsModule from '@/components/TeamsModule'
 
 // Loading Screen Component - Displayed while JS is evaluating
 function LoadingScreen() {
@@ -154,7 +156,7 @@ function AnimatedProgressBar({ percent, delay = 0 }: { percent: number; delay?: 
 // ============================================
 
 type UserRole = 'dm' | 'superviseur' | 'comptabilite' | 'marketing' | 'admin'
-type Module = 'dashboard' | 'geolocation' | 'crm' | 'accounting' | 'marketing' | 'analytics' | 'settings' | 'hcp' | 'planning' | 'budget' | 'reports' | 'rh' | 'payroll' | 'my-space' | 'messages' | 'stocks' | 'sales' | 'regulatory' | 'laboratories' | 'audit' | 'backup'
+type Module = 'dashboard' | 'geolocation' | 'crm' | 'accounting' | 'marketing' | 'analytics' | 'settings' | 'hcp' | 'planning' | 'budget' | 'reports' | 'rh' | 'payroll' | 'my-space' | 'messages' | 'stocks' | 'sales' | 'regulatory' | 'laboratories' | 'audit' | 'backup' | 'teams'
 
 // ============================================
 // AUDIT LOG TYPES
@@ -20592,6 +20594,7 @@ export default function PharmaLinkApp() {
     { id: 'dashboard' as Module, label: 'Tableau de bord', icon: BarChart3, roles: ['dm', 'superviseur', 'comptabilite', 'marketing', 'admin'] },
     { id: 'my-space' as Module, label: 'Mon espace', icon: User, roles: ['dm'] },
     { id: 'messages' as Module, label: 'Messagerie', icon: Mail, roles: ['dm', 'superviseur', 'comptabilite', 'marketing', 'admin'] },
+    { id: 'teams' as Module, label: 'Teams', icon: Users, roles: ['dm', 'superviseur', 'comptabilite', 'marketing', 'admin'] },
     { id: 'stocks' as Module, label: 'Stocks & Produits', icon: Package, roles: ['superviseur', 'comptabilite', 'admin'] },
     { id: 'sales' as Module, label: 'Ventes', icon: ShoppingCart, roles: ['admin', 'comptabilite', 'superviseur'] },
     { id: 'regulatory' as Module, label: 'Affaires Réglementaires', icon: FileText, roles: ['admin', 'superviseur'] },
@@ -20625,6 +20628,7 @@ export default function PharmaLinkApp() {
       case 'payroll': return <PayrollModule />
       case 'my-space': return <EmployeePortalModule user={user} globalLeaves={globalLeaves} onAddLeave={handleAddLeave} />
       case 'messages': return <MessagesModule user={user} />
+      case 'teams': return <TeamsModule user={user} />
       case 'marketing': return <MarketingModule />
       case 'analytics': return <AnalyticsModule />
       case 'settings': return <SettingsModule />
