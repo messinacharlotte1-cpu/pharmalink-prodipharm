@@ -283,7 +283,7 @@ export default function VideoCallModal({
           className="w-full h-full flex flex-col"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-900 to-purple-900 px-4 py-3 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-[#0c4a6e] to-[#0369a1] px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
@@ -315,7 +315,7 @@ export default function VideoCallModal({
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-900 z-10">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-16 h-16 mx-auto mb-4 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
                   <p className="text-white text-lg">Connexion à la réunion...</p>
                   <p className="text-gray-400 text-sm mt-2">Vérification audio/vidéo</p>
                 </div>
@@ -381,7 +381,7 @@ export default function VideoCallModal({
               <Button
                 onClick={toggleChat}
                 size="lg"
-                className={`rounded-full w-14 h-14 ${showChat ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+                className={`rounded-full w-14 h-14 ${showChat ? 'bg-sky-500 hover:bg-sky-600' : 'bg-gray-700 hover:bg-gray-600'}`}
               >
                 <MessageSquare className="h-6 w-6" />
               </Button>

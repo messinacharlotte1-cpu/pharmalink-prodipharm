@@ -155,7 +155,7 @@ function AnimatedProgressBar({ percent, delay = 0 }: { percent: number; delay?: 
 // TYPES
 // ============================================
 
-type UserRole = 'dm' | 'superviseur' | 'comptabilite' | 'marketing' | 'admin'
+type UserRole = 'dm' | 'superviseur' | 'comptabilite' | 'marketing' | 'admin' | 'fournisseur' | 'client'
 type Module = 'dashboard' | 'geolocation' | 'crm' | 'accounting' | 'marketing' | 'analytics' | 'settings' | 'hcp' | 'planning' | 'budget' | 'reports' | 'rh' | 'payroll' | 'my-space' | 'messages' | 'stocks' | 'sales' | 'regulatory' | 'laboratories' | 'audit' | 'backup' | 'teams'
 
 // ============================================
@@ -299,7 +299,7 @@ const checkUserAccess = (
     timeZone: timezone,
     hour: '2-digit',
     minute: '2-digit',
-    weekday: 'numeric',
+    weekday: 'short',
     hour12: false
   }
   
@@ -1353,7 +1353,9 @@ const roleLabels: Record<UserRole, string> = {
   superviseur: 'Superviseur Régional',
   comptabilite: 'Service Comptabilité',
   marketing: 'Service Marketing',
-  admin: 'Super-Administrateur'
+  admin: 'Super-Administrateur',
+  fournisseur: 'Fournisseur',
+  client: 'Client'
 }
 
 // ============================================
@@ -2550,9 +2552,17 @@ function MovementForm({ products, onSave, onCancel, preselectedProduct }: {
   onCancel: () => void,
   preselectedProduct?: string
 }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    productId: string
+    type: 'entry' | 'exit' | 'transfer' | 'adjustment'
+    quantity: number
+    reason: string
+    reference: string
+    fromLocation: string
+    toLocation: string
+  }>({
     productId: preselectedProduct || '',
-    type: 'entry' as const,
+    type: 'entry',
     quantity: 0,
     reason: '',
     reference: '',
@@ -2828,7 +2838,7 @@ const exportInvoicesToSage = (invoices: Invoice[], config: SageExportConfig = de
     'FACTURE',
     formatDateForSage(inv.createdAt),
     inv.clientId,
-    inv.name,
+    inv.clientName,
     inv.orderNumber,
     formatNumberForSage(inv.subtotal - inv.discount),
     formatNumberForSage(inv.tax),
@@ -11476,7 +11486,7 @@ function SettingsModule() {
   
   // Générer des codes de secours
   const generateBackupCodes = () => {
-    const codes = []
+    const codes: string[] = []
     for (let i = 0; i < 10; i++) {
       codes.push(Math.random().toString(36).substring(2, 8).toUpperCase())
     }
@@ -19586,11 +19596,11 @@ const supplierInvoices: SupplierInvoice[] = [
 
 // Catalogue produits visible par les clients
 const clientCatalog: PharmaProduct[] = [
-  { id: 'cat1', code: 'PAR-500', name: 'Paracétamol 500mg', category: 'Antalgiques', description: 'Antalgique et antipyrétique', price: 2500, costPrice: 1500, stockQuantity: 5000, minStock: 500, maxStock: 10000, unit: 'boîte', expiryDate: '2027-06-30', batchNumber: 'PAR2025A', location: 'Entrepôt A', status: 'available', supplierId: 'supp1', supplierName: 'PharmaPlus SARL', lastMovementDate: '2025-02-25', createdAt: '2024-01-15' },
-  { id: 'cat2', code: 'AMX-250', name: 'Amoxicilline 250mg', category: 'Antibiotiques', description: 'Antibiotique à large spectre', price: 4500, costPrice: 3200, stockQuantity: 2500, minStock: 300, maxStock: 5000, unit: 'boîte', expiryDate: '2026-12-31', batchNumber: 'AMX2025B', location: 'Entrepôt A', status: 'available', supplierId: 'supp1', supplierName: 'PharmaPlus SARL', lastMovementDate: '2025-02-24', createdAt: '2024-02-20' },
-  { id: 'cat3', code: 'IBU-400', name: 'Ibuprofène 400mg', category: 'Anti-inflammatoires', description: 'Anti-inflammatoire non stéroïdien', price: 3200, costPrice: 2200, stockQuantity: 3200, minStock: 400, maxStock: 6000, unit: 'boîte', expiryDate: '2027-03-15', batchNumber: 'IBU2025A', location: 'Entrepôt A', status: 'available', supplierId: 'supp1', supplierName: 'PharmaPlus SARL', lastMovementDate: '2025-02-26', createdAt: '2024-03-10' },
-  { id: 'cat4', code: 'VTC-1000', name: 'Vitamine C 1000mg', category: 'Vitamines', description: 'Complément alimentaire', price: 1800, costPrice: 1000, stockQuantity: 8000, minStock: 1000, maxStock: 15000, unit: 'tube', expiryDate: '2026-09-30', batchNumber: 'VTC2025C', location: 'Entrepôt B', status: 'available', supplierId: 'supp1', supplierName: 'PharmaPlus SARL', lastMovementDate: '2025-02-27', createdAt: '2024-04-05' },
-  { id: 'cat5', code: 'CRD-100', name: 'CardioRelax', category: 'Cardiologie', description: 'Traitement cardiovasculaire', price: 12500, costPrice: 8500, stockQuantity: 500, minStock: 100, maxStock: 1000, unit: 'boîte', expiryDate: '2027-01-31', batchNumber: 'CRD2025A', location: 'Entrepôt C', status: 'available', supplierId: 'supp3', supplierName: 'EuroPharm GmbH', lastMovementDate: '2025-02-20', createdAt: '2024-05-15' },
+  { id: 'cat1', code: 'PAR-500', name: 'Paracétamol 500mg', category: 'Antalgiques', description: 'Antalgique et antipyrétique', unitPrice: 2500, stockQuantity: 5000, minStock: 500, maxStock: 10000, lotNumber: 'PAR2025A', expirationDate: '2027-06-30', location: 'Entrepôt A', status: 'available', supplier: 'PharmaPlus SARL' },
+  { id: 'cat2', code: 'AMX-250', name: 'Amoxicilline 250mg', category: 'Antibiotiques', description: 'Antibiotique à large spectre', unitPrice: 4500, stockQuantity: 2500, minStock: 300, maxStock: 5000, lotNumber: 'AMX2025B', expirationDate: '2026-12-31', location: 'Entrepôt A', status: 'available', supplier: 'PharmaPlus SARL' },
+  { id: 'cat3', code: 'IBU-400', name: 'Ibuprofène 400mg', category: 'Anti-inflammatoires', description: 'Anti-inflammatoire non stéroïdien', unitPrice: 3200, stockQuantity: 3200, minStock: 400, maxStock: 6000, lotNumber: 'IBU2025A', expirationDate: '2027-03-15', location: 'Entrepôt A', status: 'available', supplier: 'PharmaPlus SARL' },
+  { id: 'cat4', code: 'VTC-1000', name: 'Vitamine C 1000mg', category: 'Vitamines', description: 'Complément alimentaire', unitPrice: 1800, stockQuantity: 8000, minStock: 1000, maxStock: 15000, lotNumber: 'VTC2025C', expirationDate: '2026-09-30', location: 'Entrepôt B', status: 'available', supplier: 'PharmaPlus SARL' },
+  { id: 'cat5', code: 'CRD-100', name: 'CardioRelax', category: 'Cardiologie', description: 'Traitement cardiovasculaire', unitPrice: 12500, stockQuantity: 500, minStock: 100, maxStock: 1000, lotNumber: 'CRD2025A', expirationDate: '2027-01-31', location: 'Entrepôt C', status: 'available', supplier: 'EuroPharm GmbH' },
 ]
 
 // ============================================
@@ -20041,7 +20051,7 @@ function ClientPortal({ account, onLogout, onUpdateAvatar }: { account: ClientAc
     if (existing) {
       setCart(cart.map(item => item.productId === product.id ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.unitPrice } : item))
     } else {
-      setCart([...cart, { id: `cart-${Date.now()}`, productId: product.id, productName: product.name, productCode: product.code, quantity: 1, unitPrice: product.price, total: product.price, stockAvailable: product.stockQuantity }])
+      setCart([...cart, { id: `cart-${Date.now()}`, productId: product.id, productName: product.name, productCode: product.code, quantity: 1, unitPrice: product.unitPrice, total: product.unitPrice, stockAvailable: product.stockQuantity }])
     }
   }
   
@@ -20207,7 +20217,7 @@ function ClientPortal({ account, onLogout, onUpdateAvatar }: { account: ClientAc
                           <p className="text-sm text-slate-500 mb-3">{product.description}</p>
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-lg font-bold text-blue-600">{product.price.toLocaleString()} XAF</p>
+                              <p className="text-lg font-bold text-blue-600">{product.unitPrice.toLocaleString()} XAF</p>
                               <p className="text-xs text-slate-500">Stock: {product.stockQuantity}</p>
                             </div>
                             <Button size="sm" onClick={() => addToCart(product)} className="bg-blue-500 hover:bg-blue-600">

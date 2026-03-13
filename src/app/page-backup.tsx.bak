@@ -153,7 +153,7 @@ function AnimatedProgressBar({ percent, delay = 0 }: { percent: number; delay?: 
 // TYPES
 // ============================================
 
-type UserRole = 'dm' | 'superviseur' | 'comptabilite' | 'marketing' | 'admin'
+type UserRole = 'dm' | 'superviseur' | 'comptabilite' | 'marketing' | 'admin' | 'fournisseur' | 'client'
 type Module = 'dashboard' | 'geolocation' | 'crm' | 'accounting' | 'marketing' | 'analytics' | 'settings' | 'hcp' | 'planning' | 'budget' | 'reports' | 'rh' | 'payroll' | 'my-space' | 'messages' | 'stocks' | 'sales' | 'regulatory' | 'laboratories'
 
 // Configuration des horaires d'accès par rôle
@@ -216,7 +216,7 @@ const checkUserAccess = (
     timeZone: timezone,
     hour: '2-digit',
     minute: '2-digit',
-    weekday: 'numeric',
+    weekday: 'short',
     hour12: false
   }
   
@@ -1270,7 +1270,9 @@ const roleLabels: Record<UserRole, string> = {
   superviseur: 'Superviseur Régional',
   comptabilite: 'Service Comptabilité',
   marketing: 'Service Marketing',
-  admin: 'Super-Administrateur'
+  admin: 'Super-Administrateur',
+  fournisseur: 'Fournisseur',
+  client: 'Client'
 }
 
 // ============================================
@@ -2467,9 +2469,17 @@ function MovementForm({ products, onSave, onCancel, preselectedProduct }: {
   onCancel: () => void,
   preselectedProduct?: string
 }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    productId: string
+    type: 'entry' | 'exit' | 'transfer' | 'adjustment'
+    quantity: number
+    reason: string
+    reference: string
+    fromLocation: string
+    toLocation: string
+  }>({
     productId: preselectedProduct || '',
-    type: 'entry' as const,
+    type: 'entry',
     quantity: 0,
     reason: '',
     reference: '',

@@ -1,6 +1,72 @@
 // User Roles
 export type UserRole = 'DM' | 'SUPERVISEUR' | 'COMPTABILITE' | 'MARKETING' | 'SUPER_ADMIN';
 
+// Pharma Product
+export interface PharmaProduct {
+  id: string;
+  code: string;
+  name: string;
+  category: string;
+  description: string;
+  unitPrice: number;
+  stockQuantity: number;
+  minStock: number;
+  maxStock: number;
+  lotNumber: string;
+  expirationDate: string;
+  supplier: string;
+  location: string;
+  status: 'available' | 'low_stock' | 'out_of_stock' | 'expired';
+}
+
+// Order Item
+export interface OrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  total: number;
+}
+
+// Invoice
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  orderId: string;
+  orderNumber: string;
+  clientId: string;
+  clientName: string;
+  items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+  amountPaid: number;
+  amountDue: number;
+  status: 'draft' | 'sent' | 'paid' | 'partial' | 'overdue' | 'cancelled';
+  dueDate: string;
+  createdAt: string;
+  paidAt?: string;
+}
+
+// Stock Movement
+export interface StockMovement {
+  id: string;
+  productId: string;
+  productName: string;
+  type: 'entry' | 'exit' | 'transfer' | 'adjustment';
+  quantity: number;
+  reason: string;
+  reference: string;
+  fromLocation?: string;
+  toLocation?: string;
+  date: string;
+  userId: string;
+  userName: string;
+}
+
 export interface User {
   id: string;
   email: string;
