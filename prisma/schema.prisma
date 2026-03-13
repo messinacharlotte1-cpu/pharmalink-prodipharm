@@ -1,0 +1,212 @@
+// Prisma Schema for PharmaLink SaaS
+// Security-focused design with audit logging and encrypted sensitive data
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User roles enum
+enum UserRole {
+  dm              // Délégué Médical
+  superviseur     // Superviseur Régional
+  comptabilite    // Service Comptabilité
+  marketing       // Service Marketing
+  admin           // Super-Administrateur
+}
+
+// Visit status enum
+enum VisitStatus {
+  planned
+  completed
+  cancelled
+}
+
+// Expense status enum
+enum ExpenseStatus {
+  pending
+  approved
+  rejected
+}
+
+// Expense type enum
+enum ExpenseType {
+  fuel
+  accommodation
+  meal
+  transport
+  other
+}
+
+// User model with secure password storage
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String    // Bcrypt hashed password
+  role          UserRole  @default(dm)
+  avatar        String?
+  region        String?
+  country       String?
+  phone         String?
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  hcps          HCP[]
+  visits        Visit[]
+  expenses      Expense[]
+  auditLogs     AuditLog[]
+
+  @@index([email])
+  @@index([role])
+}
+
+// Healthcare Professional model with encrypted sensitive fields
+model HCP {
+  id              String    @id @default(cuid())
+  name            String
+  specialty       String
+  facility        String
+  address         String?
+  city            String
+  country         String   @default("Cameroun")
+  phone           String    // Encrypted in application layer
+  email           String?   // Encrypted in application layer
+  category        String    @default("C") // A, B, C
+  visitFrequency  Int       @default(8)
+  coordinatesLat  Float?
+  coordinatesLng  Float?
+  dmId            String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  dm              User      @relation(fields: [dmId], references: [id], onDelete: Cascade)
+  visits          Visit[]
+
+  @@index([dmId])
+  @@index([city])
+  @@index([category])
+}
+
+// Visit model for medical representative visits
+model Visit {
+  id            String      @id @default(cuid())
+  hcpId         String
+  dmId          String
+  date          DateTime
+  duration      Int         @default(0) // in minutes
+  status        VisitStatus @default(planned)
+  products      String?     // JSON array of product names
+  feedback      String?
+  orderValue    Float?
+  coordinatesLat Float?
+  coordinatesLng Float?
+  hcpValidated  Boolean     @default(false)
+  hcpValidatedAt DateTime?
+  supervisorValidated Boolean @default(false)
+  supervisorValidatedAt DateTime?
+  supervisorId  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  hcp           HCP         @relation(fields: [hcpId], references: [id], onDelete: Cascade)
+  dm            User        @relation(fields: [dmId], references: [id], onDelete: Cascade)
+
+  @@index([dmId])
+  @@index([hcpId])
+  @@index([date])
+  @@index([status])
+}
+
+// Expense model for DM expenses
+model Expense {
+  id            String        @id @default(cuid())
+  dmId          String
+  type          ExpenseType
+  amount        Float
+  currency      String        @default("XAF")
+  date          DateTime
+  description   String?
+  receiptUrl    String?
+  status        ExpenseStatus @default(pending)
+  approvedBy    String?
+  approvedAt    DateTime?
+  rejectionReason String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  dm            User          @relation(fields: [dmId], references: [id], onDelete: Cascade)
+
+  @@index([dmId])
+  @@index([status])
+  @@index([date])
+}
+
+// Audit Log model for security tracking
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String   // login, logout, create_hcp, update_hcp, delete_hcp, etc.
+  entityType  String?  // User, HCP, Visit, Expense
+  entityId    String?
+  ipAddress   String?
+  userAgent   String?
+  details     String?  // JSON for additional context
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// Session model for NextAuth (optional, for database sessions)
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([sessionToken])
+  @@index([userId])
+}
+
+// Account model for NextAuth (for OAuth providers if needed)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+// Verification Token for password reset, etc.
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

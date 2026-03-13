@@ -1,0 +1,188 @@
+/**
+ * Security Middleware
+ * - Authentication protection for API routes
+ * - Security headers
+ * - Rate limiting for auth endpoints
+ */
+
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+// Rate limiting store (in-memory for development, use Redis in production)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
+
+// Rate limit configuration
+const RATE_LIMITS = {
+  '/api/auth': { maxRequests: 5, windowMs: 60 * 1000 }, // 5 requests per minute for auth
+  '/api/users': { maxRequests: 30, windowMs: 60 * 1000 }, // 30 requests per minute
+  '/api/hcps': { maxRequests: 60, windowMs: 60 * 1000 }, // 60 requests per minute
+}
+
+/**
+ * Check rate limit for a given IP and path
+ */
+function checkRateLimit(ip: string, pathname: string): { allowed: boolean; remaining: number } {
+  // Find matching rate limit config
+  let config: { maxRequests: number; windowMs: number } | null = null
+  for (const [path, limit] of Object.entries(RATE_LIMITS)) {
+    if (pathname.startsWith(path)) {
+      config = limit
+      break
+    }
+  }
+
+  if (!config) {
+    return { allowed: true, remaining: Infinity }
+  }
+
+  const key = `${ip}:${pathname}`
+  const now = Date.now()
+  const record = rateLimitStore.get(key)
+
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(key, { count: 1, resetTime: now + config.windowMs })
+    return { allowed: true, remaining: config.maxRequests - 1 }
+  }
+
+  if (record.count >= config.maxRequests) {
+    return { allowed: false, remaining: 0 }
+  }
+
+  record.count++
+  return { allowed: true, remaining: config.maxRequests - record.count }
+}
+
+/**
+ * Get client IP address
+ */
+function getClientIP(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for')
+  const realIP = request.headers.get('x-real-ip')
+  
+  if (forwarded) {
+    return forwarded.split(',')[0].trim()
+  }
+  if (realIP) {
+    return realIP
+  }
+  return 'unknown'
+}
+
+/**
+ * Security headers to add to all responses
+ */
+const SECURITY_HEADERS = {
+  // Prevent clickjacking
+  'X-Frame-Options': 'DENY',
+  
+  // Prevent MIME type sniffing
+  'X-Content-Type-Options': 'nosniff',
+  
+  // XSS protection (legacy but still useful)
+  'X-XSS-Protection': '1; mode=block',
+  
+  // Referrer policy
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  
+  // Permissions policy
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  
+  // Content Security Policy
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; '),
+  
+  // HSTS (only in production with HTTPS)
+  ...(process.env.NODE_ENV === 'production' && {
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+  }),
+}
+
+/**
+ * Routes that require authentication
+ */
+const PROTECTED_ROUTES = [
+  '/api/users',
+  '/api/hcps',
+  '/api/visits',
+  '/api/expenses',
+  '/api/audit-logs',
+]
+
+/**
+ * Routes that only admins can access
+ */
+const ADMIN_ONLY_ROUTES = [
+  '/api/users',
+  '/api/audit-logs',
+]
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  const ip = getClientIP(request)
+  
+  // Apply rate limiting
+  const rateLimit = checkRateLimit(ip, pathname)
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 }
+    )
+  }
+
+  // Create response
+  const response = NextResponse.next()
+
+  // Add security headers
+  for (const [header, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(header, value)
+  }
+
+  // Add rate limit headers
+  response.headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString())
+
+  // For API routes, check authentication
+  if (pathname.startsWith('/api/')) {
+    // Skip auth check for login and public routes
+    const publicRoutes = ['/api/auth', '/api/health']
+    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+    
+    if (!isPublicRoute) {
+      // Check for session cookie
+      const sessionCookie = request.cookies.get('pharmalink-session')
+      
+      if (!sessionCookie) {
+        return NextResponse.json(
+          { error: 'Non authentifié. Veuillez vous connecter.' },
+          { status: 401 }
+        )
+      }
+      
+      // Note: Full JWT verification would be done in the API route
+      // Middleware only checks for cookie presence
+    }
+  }
+
+  return response
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder files
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
+  ],
+}
